@@ -1,0 +1,91 @@
+The architecture: WhatsApp + LLM + state store
+Here’s how the pieces connect when you’re building a WhatsApp AI agent. The flow is straightforward once you see it.
+
+User sends WhatsApp message
+    ↓
+WhatsApp API (OpenWA/Baileys) receives via webhook
+    ↓
+Your server parses the message + loads conversation history from state store
+    ↓
+LLM API (Claude/GPT) generates a response with full context
+    ↓
+Your server sends the response back through the WhatsApp API
+    ↓
+User receives the reply in WhatsApp
+One thing I should mention: the webhook setup is where most people get stuck on their first build. OpenWA handles this cleanly with built-in webhook endpoints that include authentication. With Baileys, you wire up your own event listeners. Either way, the message arrives as a structured event with the sender’s number, message text, timestamp, and media attachments if any.
+
+ quand est-ce qu'il apprend qu'une commande vient de tomber ? Voici le workflow complet pour WhaOrder :
+
+Client écrit sur WhatsApp
+    ↓
+Webhook (session openWA du commerçant = le tenant, pas d'ambiguïté)
+    ↓
+Serveur charge l'état de la conversation (panier en cours : produits, qté, adresse, paiement)
+    depuis un state store (Redis/DB) lié à (tenant, client)
+    ↓
+LLM avec function/tool calling (Laravel AI SDK) — PAS une réponse "en roue libre" :
+    outils exposés : chercher_produit(), verifier_stock(), calculer_total(), finaliser_commande()
+    ↓
+Tant qu'il manque une info (produit, quantité, adresse, paiement) → l'IA répond au client
+    et met à jour l'état du panier, SANS finaliser
+    ↓
+Dès que tout est réuni → l'IA appelle finaliser_commande()
+    ↓
+Le serveur : crée Order + Delivery en DB, décrémente le stock, génère le reçu
+    ↓
+    ├─→ Réponse au client (reçu WhatsApp)
+    └─→ NOTIFICATION COMMERÇANT ← la partie qui manquait
+
+Pour cette dernière étape, deux canaux complémentaires :
+
+- WhatsApp : le bot envoie un message récap ("🆕 Commande #482 — 30 000 FCFA — Cocody") sur un numéro admin séparé du commerçant — pas dans le même fil que le client, sinon ça pollue sa conversation avec l'acheteur. Ça colle à la promesse "le commerçant reste dans WhatsApp".
+- Dashboard temps réel (Laravel Echo/broadcasting) : la commande apparaît instantanément dans la liste + un toast, pour la supervision et l'historique.
+
+Je recommande les deux — WhatsApp pour l'alerte immédiate (c'est là qu'il vit), le dashboard pour la vue d'ensemble. Le point à trancher avec vous : est-ce qu'on notifie sur un 2ᵉ numéro admin dédié, ou sur le même numéro business (le bot s'auto-envoie le récap) ? Le 2ᵉ numéro est plus propre mais demande une étape d'onboarding en plus.
+
+
+
+Bonne base, mais votre ancien schéma est pensé pour un site e-commerce avec panier + compte client + passerelle de paiement (Stripe/PayPal). WhaOrder n'a ni panier persistant, ni compte client qui se connecte, ni passerelle — le "panier" c'est la conversation WhatsApp, et le paiement est déclaratif + confirmé à la main. Voici ce que je changerais :
+
+À enlever
+- carts / cart_items — inutiles, remplacés par l'état de la conversation (voir plus bas)
+- payments (Stripe/PayPal/provider) — remplacé par payment_proofs (déclaratif + confirmation manuelle)
+- users.role = customer — le client WhatsApp ne se connecte jamais à l'app, ce n'est pas un user
+- categories.parent_id (sous-catégories) — over-engineering pour un petit commerçant, à rajouter plus tard si besoin
+
+À garder (quasi identique)
+- products, product_variants, product_images, categories (version plate)
+
+À ajouter
+- merchants — le tenant. id, name, slug, whatsapp_number, whatsapp_admin_number, currency, timezone
+- users devient id, merchant_id, name, email, password, role (owner/staff) — c'est le compte du commerçant qui se connecte au dashboard
+- whatsapp_sessions — merchant_id, phone_number, status, qr_code (une session openWA par commerçant)
+- customers — remplace users côté acheteur : merchant_id, whatsapp_number, name, notes (c'est le CRM du pitch, un client existe par commerçant, pas globalement)
+- addresses — pareil mais rattaché à customer_id au lieu de user_id
+- conversations — merchant_id, customer_id, status, last_message_at + un JSON draft_order (items/adresse/paiement en cours) → c'est ça votre "panier", éphémère, tant que la commande n'est pas finalisée
+- messages — conversation_id, direction, sender (client/bot/commerçant), body, whatsapp_message_id → historique complet pour le contexte de l'IA + supervision dashboard
+- orders / order_items — quasi identiques aux vôtres, mais payment_status (unpaid/claimed/confirmed) séparé de status (pending/preparing/delivered/cancelled)
+- payment_proofs — la pièce qui correspond à votre besoin : order_id, type (screenshot/message), image_url, raw_message, status (pending_review/confirmed/rejected), reviewed_by, reviewed_at. L'IA crée la preuve dès que le client dit "j'ai payé" ou envoie une capture ; le commerçant confirme manuellement dans le dashboard → orders.payment_status = confirmed
+- deliveries — order_id, status, address_text, city, delivered_at
+
+Multi-tenant, une seule DB : chaque table ci-dessus a un merchant_id (direct ou via order_id/customer_id). Un trait BelongsToMerchant + un global scope Eloquent filtre automatiquement par le tenant courant — c'est le pattern standard, pas besoin d'un package ni d'une DB par tenant.
+
+Ordre de construction : merchants/users → products/categories/variants → customers/addresses → conversations/messages → orders/order_items → payment_proofs/deliveries → whatsapp_sessions.
+
+Je peux enchaîner sur les migrations, modèles (avec le scope tenant), factories et seeders qui génèrent un commerçant fake avec catalogue, clients, conversations et commandes à différents stades — utile pour construire le dashboard sur des données réalistes. Je pars là-dessus, ou tu veux ajuster une partie du schéma avant (ex: garder product_variants obligatoire vs optionnel, fusionner deliveries dans orders) ?
+
+Produits/Catégories : le commerçant DOIT les saisir à la main, l'IA ne peut pas inventer un catalogue. Le formulaire complet (create/edit) a du sens comme point d'entrée principal.
+
+Clients/Adresses : dans le produit final, ils se créent automatiquement — dès qu'un numéro WhatsApp inconnu écrit au commerçant, le système crée l'entrée Customer (merchant_id + whatsapp_number), et l'adresse se remplit quand le client la partage pendant une commande. C'est le "classement CRM" du pitch de départ : un sous-produit de la conversation, pas une saisie manuelle.
+
+Donc pour l'instant (avant que le webhook WhatsApp existe), le dashboard Clients sert à deux choses :
+1. Consulter/rechercher — retrouver un client, voir son historique, ses adresses.
+2. Corriger/annoter — le nom WhatsApp est parfois vide ou bizarre, le commerçant peut le renommer, ajouter une note ("VIP", "paie toujours en retard"), corriger une adresse mal comprise par l'IA.
+
+La création manuelle reste utile mais secondaire (pré-ajouter un client connu avant qu'il écrive, importer un contact) — pas le flux principal comme pour un produit.
+
+Je pars sur un CRUD complet quand même (comme Produits/Catégories, avec le même pattern Repository/Actions) pour la flexibilité, mais je mets "Voir/Modifier" en avant plutôt que "Créer" dans l'UI ? Ou tu préfères que je limite direct à liste + édition, sans page de création ?
+
+
+- Email : owner+1@whaorder.test
+- Mot de passe : password
