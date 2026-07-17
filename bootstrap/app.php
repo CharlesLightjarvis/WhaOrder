@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
             BindCurrentMerchant::class,
         ]);
+
+        $middleware->preventRequestForgery(except: [
+            'webhooks/whatsapp',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

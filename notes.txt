@@ -86,6 +86,6 @@ La création manuelle reste utile mais secondaire (pré-ajouter un client connu 
 
 Je pars sur un CRUD complet quand même (comme Produits/Catégories, avec le même pattern Repository/Actions) pour la flexibilité, mais je mets "Voir/Modifier" en avant plutôt que "Créer" dans l'UI ? Ou tu préfères que je limite direct à liste + édition, sans page de création ?
 
-
-- Email : owner+1@whaorder.test
-- Mot de passe : password
+⚠️ Un point bloquant côté Coolify avant que les webhooks marchent : WHATSAPP_HOOK_URL sur ton déploiement WAHA pointe actuellement vers lui-même (https://waha.coolify.dallico.com/webhooks/whatsapp) au lieu de pointer vers whaorder. Il faut le corriger dans les variables d'env de WAHA sur Coolify :
+WHATSAPP_HOOK_URL=https://<ton-tunnel-ngrok-actuel>/webhooks/whatsapp
+(sans {session} dans l'URL cette fois — WAHA envoie le nom de la session dans le corps de la requête, pas dans le chemin). Puis redeploy.

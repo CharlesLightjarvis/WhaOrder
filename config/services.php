@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'waha' => [
+        'base_url' => env('WAHA_URL'),
+        'api_key' => env('WAHA_API_KEY'),
+        'webhook_hmac_key' => env('WAHA_WEBHOOK_HMAC_KEY'),
+    ],
+
 ];

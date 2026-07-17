@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('product_images', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('product_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('variant_id')->nullable()->constrained('product_variants')->cascadeOnDelete();
             $table->string('url');
             $table->integer('position')->default(0);
             $table->timestamps();

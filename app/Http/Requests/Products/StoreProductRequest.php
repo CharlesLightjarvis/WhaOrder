@@ -26,7 +26,7 @@ class StoreProductRequest extends FormRequest
         return [
             'category_id' => [
                 'nullable',
-                'integer',
+                'uuid',
                 Rule::exists('categories', 'id')->where('merchant_id', $this->user()->merchant_id),
             ],
             'name' => ['required', 'string', 'max:255'],

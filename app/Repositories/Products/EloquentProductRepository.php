@@ -20,7 +20,7 @@ class EloquentProductRepository implements ProductRepository
             ->withQueryString();
     }
 
-    public function find(int $id): Product
+    public function find(string $id): Product
     {
         return Product::query()
             ->with([

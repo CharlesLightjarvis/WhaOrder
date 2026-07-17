@@ -16,7 +16,7 @@ class EloquentCustomerRepository implements CustomerRepository
             ->withQueryString();
     }
 
-    public function find(int $id): Customer
+    public function find(string $id): Customer
     {
         return Customer::query()
             ->with('addresses')

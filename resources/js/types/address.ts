@@ -1,11 +1,11 @@
 export type AddressCustomer = {
-    id: number;
+    id: string;
     name: string | null;
     whatsapp_number: string;
 };
 
 export type Address = {
-    id: number;
+    id: string;
     label: string | null;
     full_name: string | null;
     phone: string | null;

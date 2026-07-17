@@ -1,12 +1,12 @@
 import type { Category } from './category';
 
 export type ProductImage = {
-    id: number;
+    id: string;
     url: string;
 };
 
 export type ProductVariant = {
-    id: number;
+    id: string;
     name: string;
     price: number | null;
     stock: number;
@@ -14,7 +14,7 @@ export type ProductVariant = {
 };
 
 export type Product = {
-    id: number;
+    id: string;
     name: string;
     slug: string;
     description: string | null;

@@ -9,7 +9,7 @@ interface CustomerRepository
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id): Customer;
+    public function find(string $id): Customer;
 
     /**
      * @param  array<string, mixed>  $data

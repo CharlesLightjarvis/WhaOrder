@@ -1,7 +1,7 @@
 import type { Address } from './address';
 
 export type Customer = {
-    id: number;
+    id: string;
     whatsapp_number: string;
     name: string | null;
     notes: string | null;

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\BelongsToMerchantThroughCustomer;
 use Database\Factories\AddressFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Address extends Model
 {
     /** @use HasFactory<AddressFactory> */
-    use BelongsToMerchantThroughCustomer, HasFactory;
+    use BelongsToMerchantThroughCustomer, HasFactory, HasUuids;
 
     protected function casts(): array
     {

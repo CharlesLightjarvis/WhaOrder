@@ -9,7 +9,7 @@ interface ProductRepository
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id): Product;
+    public function find(string $id): Product;
 
     /**
      * @param  array<string, mixed>  $data

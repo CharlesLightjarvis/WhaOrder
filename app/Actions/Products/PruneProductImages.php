@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class PruneProductImages
 {
     /**
-     * @param  array<int, int>  $keepIds
+     * @param  array<int, string>  $keepIds
      */
     public function handle(HasMany $images, array $keepIds): void
     {

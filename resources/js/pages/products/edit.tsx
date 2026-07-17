@@ -23,7 +23,7 @@ import type { Category } from '@/types/category';
 import type { Product, ProductImage } from '@/types/product';
 
 type VariantDraft = {
-    id: number | null;
+    id: string | null;
     name: string;
     price: string;
     stock: string;

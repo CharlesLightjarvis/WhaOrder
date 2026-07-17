@@ -37,7 +37,7 @@ class UpdateCustomerRequest extends FormRequest
             'addresses' => ['array'],
             'addresses.*.id' => [
                 'nullable',
-                'integer',
+                'uuid',
                 Rule::exists('addresses', 'id')->where('customer_id', $this->route('customer')?->id),
             ],
             'addresses.*.label' => ['nullable', 'string', 'max:255'],

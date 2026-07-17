@@ -16,7 +16,7 @@ class EloquentCategoryRepository implements CategoryRepository
             ->withQueryString();
     }
 
-    public function find(int $id): Category
+    public function find(string $id): Category
     {
         return Category::query()->findOrFail($id);
     }

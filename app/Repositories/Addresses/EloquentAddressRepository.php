@@ -16,7 +16,7 @@ class EloquentAddressRepository implements AddressRepository
             ->withQueryString();
     }
 
-    public function find(int $id): Address
+    public function find(string $id): Address
     {
         return Address::query()
             ->with('customer:id,name,whatsapp_number')

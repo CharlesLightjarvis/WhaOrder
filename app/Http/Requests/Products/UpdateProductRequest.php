@@ -26,7 +26,7 @@ class UpdateProductRequest extends FormRequest
         return [
             'category_id' => [
                 'nullable',
-                'integer',
+                'uuid',
                 Rule::exists('categories', 'id')->where('merchant_id', $this->user()->merchant_id),
             ],
             'name' => ['required', 'string', 'max:255'],
@@ -35,13 +35,13 @@ class UpdateProductRequest extends FormRequest
             'stock' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
             'keep_image_ids' => ['array'],
-            'keep_image_ids.*' => ['integer'],
+            'keep_image_ids.*' => ['uuid'],
             'images' => ['array'],
             'images.*' => ['image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'variants' => ['array'],
             'variants.*.id' => [
                 'nullable',
-                'integer',
+                'uuid',
                 Rule::exists('product_variants', 'id')->where('product_id', $this->route('product')?->id),
             ],
             'variants.*.name' => ['required_with:variants', 'string', 'max:255'],
@@ -50,7 +50,7 @@ class UpdateProductRequest extends FormRequest
             'variants.*.images' => ['array'],
             'variants.*.images.*' => ['image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'variants.*.keep_image_ids' => ['array'],
-            'variants.*.keep_image_ids.*' => ['integer'],
+            'variants.*.keep_image_ids.*' => ['uuid'],
         ];
     }
 }

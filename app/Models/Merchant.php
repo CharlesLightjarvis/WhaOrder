@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Currency;
 use Database\Factories\MerchantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +16,7 @@ use Spatie\Sluggable\SlugOptions;
 class Merchant extends Model
 {
     /** @use HasFactory<MerchantFactory> */
-    use HasFactory, HasSlug;
+    use HasFactory, HasSlug, HasUuids;
 
     protected function casts(): array
     {
@@ -49,5 +50,20 @@ class Merchant extends Model
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function whatsAppSessions(): HasMany
+    {
+        return $this->hasMany(WhatsAppSession::class);
     }
 }

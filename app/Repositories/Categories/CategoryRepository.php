@@ -9,7 +9,7 @@ interface CategoryRepository
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id): Category;
+    public function find(string $id): Category;
 
     /**
      * @param  array<string, mixed>  $data

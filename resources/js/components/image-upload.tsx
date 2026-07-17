@@ -2,7 +2,7 @@ import { ImageIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type ExistingImage = {
-    id: number;
+    id: string;
     url: string;
 };
 
@@ -18,7 +18,7 @@ export function ImageUpload({
     existingImages = [],
 }: Props) {
     const [files, setFiles] = useState<File[]>([]);
-    const [removedIds, setRemovedIds] = useState<number[]>([]);
+    const [removedIds, setRemovedIds] = useState<string[]>([]);
 
     const keptImages = existingImages.filter(
         (image) => !removedIds.includes(image.id),

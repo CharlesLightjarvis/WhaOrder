@@ -9,7 +9,7 @@ interface AddressRepository
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-    public function find(int $id): Address;
+    public function find(string $id): Address;
 
     /**
      * @param  array<string, mixed>  $data

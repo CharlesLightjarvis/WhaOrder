@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\ProductImageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Spatie\EloquentSortable\SortableTrait;
 class ProductImage extends Model implements Sortable
 {
     /** @use HasFactory<ProductImageFactory> */
-    use HasFactory, SortableTrait;
+    use HasFactory, HasUuids, SortableTrait;
 
     /** @var array<string, mixed> */
     public array $sortable = [

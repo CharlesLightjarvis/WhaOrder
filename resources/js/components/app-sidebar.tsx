@@ -8,6 +8,9 @@ import {
     Boxes,
     Users,
     MapPin,
+    ShoppingCart,
+    MessageCircle,
+    Smartphone,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -27,6 +30,9 @@ import ProductController from '@/actions/App/Http/Controllers/ProductController'
 import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import AddressController from '@/actions/App/Http/Controllers/AddressController';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
+import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
+import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -68,6 +74,21 @@ const mainNavItems: NavItem[] = [
                 icon: MapPin,
             },
         ],
+    },
+    {
+        title: 'Commandes',
+        href: OrderController.index.url(),
+        icon: ShoppingCart,
+    },
+    {
+        title: 'Conversations',
+        href: ConversationController.index.url(),
+        icon: MessageCircle,
+    },
+    {
+        title: 'WhatsApp',
+        href: WhatsAppSessionController.index.url(),
+        icon: Smartphone,
     },
 ];
 

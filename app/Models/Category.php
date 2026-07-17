@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\BelongsToMerchant;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +16,7 @@ use Spatie\Sluggable\SlugOptions;
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use BelongsToMerchant, HasFactory, HasSlug;
+    use BelongsToMerchant, HasFactory, HasSlug, HasUuids;
 
     public function getSlugOptions(): SlugOptions
     {

@@ -14,7 +14,7 @@ import CustomerController from '@/actions/App/Http/Controllers/CustomerControlle
 import type { Customer } from '@/types/customer';
 
 type AddressDraft = {
-    id: number | null;
+    id: string | null;
     label: string;
     full_name: string;
     phone: string;

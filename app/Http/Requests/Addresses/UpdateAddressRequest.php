@@ -26,7 +26,7 @@ class UpdateAddressRequest extends FormRequest
         return [
             'customer_id' => [
                 'required',
-                'integer',
+                'uuid',
                 Rule::exists('customers', 'id')->where('merchant_id', $this->user()->merchant_id),
             ],
             'label' => ['nullable', 'string', 'max:255'],
