@@ -21,6 +21,12 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
     table,
 }: DataTablePaginationProps<TData>) {
+    // React Compiler can't see that `table` is a mutable object whose
+    // getters (pageIndex, canNextPage, ...) change without the reference
+    // itself changing — auto-memoizing this component freezes it on its
+    // first render.
+    'use no memo';
+
     return (
         <div className="flex items-center justify-between px-2">
             <div className="flex-1 text-sm text-muted-foreground">

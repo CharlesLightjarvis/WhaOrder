@@ -15,6 +15,10 @@ export function DataTableViewOptions<TData>({
 }: {
     table: Table<TData>;
 }) {
+    // See data-table-pagination.tsx: `table` is a mutable escape hatch,
+    // React Compiler must not auto-memoize components reading its getters.
+    'use no memo';
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>

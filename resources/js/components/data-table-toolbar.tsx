@@ -41,6 +41,10 @@ export function DataTableToolbar<TData>({
     facetedFilters = [],
     actionButton,
 }: DataTableToolbarProps<TData>) {
+    // See data-table-pagination.tsx: `table` is a mutable escape hatch,
+    // React Compiler must not auto-memoize components reading its getters.
+    'use no memo';
+
     const [searchValue, setSearchValue] = useState('');
     const [filterCounts, setFilterCounts] = useState<Record<string, number>>({});
     const [filterResetKey, setFilterResetKey] = useState(0);

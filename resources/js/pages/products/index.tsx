@@ -3,11 +3,10 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import ProductList from './partials/product-list';
-import type { Paginated } from '@/types/pagination';
 import type { Product } from '@/types/product';
 
 type Props = {
-    products: Paginated<Product>;
+    products: Product[];
 };
 
 export default function ProductIndex() {

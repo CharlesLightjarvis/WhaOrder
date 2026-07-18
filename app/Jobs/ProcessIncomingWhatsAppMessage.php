@@ -14,11 +14,13 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laravel\Ai\Exceptions\AiException;
 
 class ProcessIncomingWhatsAppMessage implements ShouldQueue
 {
@@ -76,7 +78,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         ]);
 
         $agent = new OrderAgent($merchant, $conversation);
-        $participant = (object) ['id' => null];
+        $participant = (object) ['id' => $conversation->customer_id];
 
         if ($conversation->agent_conversation_id) {
             $agent->continue($conversation->agent_conversation_id, $participant);
@@ -85,7 +87,31 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         }
 
         $startedAt = now();
-        $response = $agent->prompt($body);
+
+        try {
+            $response = $agent->prompt($body);
+        } catch (RequestException|AiException $exception) {
+            Log::error('AI agent prompt failed.', [
+                'chatId' => $chatId,
+                'conversationId' => $conversation->id,
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+                'status' => $exception instanceof RequestException ? $exception->response->status() : null,
+                'body' => $exception instanceof RequestException ? $exception->response->body() : null,
+            ]);
+
+            $replyChatId = $this->message['from'] ?? $this->message['chatId'] ?? null;
+
+            if ($replyChatId) {
+                $client->sendText(
+                    $this->whatsAppSession->waha_session_name,
+                    $replyChatId,
+                    "Désolé, j'ai eu un souci technique. Pouvez-vous reformuler votre message ?",
+                );
+            }
+
+            return;
+        }
 
         $conversation->update([
             'agent_conversation_id' => $agent->currentConversation(),

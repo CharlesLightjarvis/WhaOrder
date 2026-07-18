@@ -89,3 +89,17 @@ Je pars sur un CRUD complet quand même (comme Produits/Catégories, avec le mê
 ⚠️ Un point bloquant côté Coolify avant que les webhooks marchent : WHATSAPP_HOOK_URL sur ton déploiement WAHA pointe actuellement vers lui-même (https://waha.coolify.dallico.com/webhooks/whatsapp) au lieu de pointer vers whaorder. Il faut le corriger dans les variables d'env de WAHA sur Coolify :
 WHATSAPP_HOOK_URL=https://<ton-tunnel-ngrok-actuel>/webhooks/whatsapp
 (sans {session} dans l'URL cette fois — WAHA envoie le nom de la session dans le corps de la requête, pas dans le chemin). Puis redeploy.
+
+
+
+==== AMELIORATIONS +++++
+
+les chiffres dans lordre nest pas respecter quand je dis 2 ca tague plutôt le 3 pourquoi ? askip cest un tableau mais sur whatsapp ca prete a confusion
+enlever les etoiles
+montrer les phptos des produits 
+
+discuter les prix 
+
+rien nest enregistrer dans la BD cleint adresses paniers commandes etc
+
+quand le client 

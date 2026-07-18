@@ -24,6 +24,10 @@ export function DataTableColumnHeader<TData, TValue>({
     title,
     className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
+    // See data-table-pagination.tsx: `column` is a mutable escape hatch,
+    // React Compiler must not auto-memoize components reading its getters.
+    'use no memo';
+
     if (!column.getCanSort()) {
         return <div className={cn(className)}>{title}</div>;
     }

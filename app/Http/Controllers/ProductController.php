@@ -32,8 +32,8 @@ class ProductController extends Controller
     public function index(): Response
     {
         return Inertia::render('products/index', [
-            'products' => $this->repository->paginate(15)->through(
-                fn (Product $product) => ProductResource::make($product),
+            'products' => $this->repository->all()->map(
+                fn (Product $product) => ProductResource::make($product)->resolve(),
             ),
         ]);
     }

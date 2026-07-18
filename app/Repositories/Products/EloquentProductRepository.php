@@ -4,6 +4,7 @@ namespace App\Repositories\Products;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class EloquentProductRepository implements ProductRepository
 {
@@ -18,6 +19,18 @@ class EloquentProductRepository implements ProductRepository
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    public function all(): Collection
+    {
+        return Product::query()
+            ->with([
+                'category:id,name',
+                'images' => fn ($query) => $query->whereNull('variant_id')->ordered()->limit(1),
+            ])
+            ->withCount('variants')
+            ->latest()
+            ->get();
     }
 
     public function find(string $id): Product

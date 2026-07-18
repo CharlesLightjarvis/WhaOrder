@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
                     ->create();
 
                 $products = Product::factory()
-                    ->count(15)
+                    ->count(30)
                     ->for($merchant)
                     ->recycle($categories)
                     ->create()

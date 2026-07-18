@@ -38,6 +38,10 @@ export function DataTableFacetedFilter<TData, TValue>({
     options,
     onSelectionChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+    // See data-table-pagination.tsx: `column` is a mutable escape hatch,
+    // React Compiler must not auto-memoize components reading its getters.
+    'use no memo';
+
     const facets = column?.getFacetedUniqueValues();
 
     const [selectedValues, setSelectedValues] = React.useState<Set<string>>(
