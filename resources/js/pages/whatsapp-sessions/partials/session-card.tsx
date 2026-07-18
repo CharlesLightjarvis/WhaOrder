@@ -49,6 +49,7 @@ export default function SessionCard({ session }: Props) {
     const [deleting, setDeleting] = useState(false);
 
     const isPending = PENDING_STATUSES.includes(session.status);
+    const justScanned = session.status === 'STARTING' && Boolean(session.qr_code);
 
     function handleDelete() {
         setDeleting(true);
@@ -66,7 +67,9 @@ export default function SessionCard({ session }: Props) {
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                     <CardTitle>{session.label}</CardTitle>
                     <Badge variant={statusVariant[session.status]}>
-                        {session.status_label}
+                        {justScanned
+                            ? 'Connexion en cours…'
+                            : session.status_label}
                     </Badge>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -84,7 +87,13 @@ export default function SessionCard({ session }: Props) {
                         </div>
                     )}
 
-                    {isPending && !session.qr_code && (
+                    {justScanned && (
+                        <p className="text-center text-sm text-muted-foreground">
+                            QR code scanné ! Finalisation de la connexion…
+                        </p>
+                    )}
+
+                    {isPending && !session.qr_code && !justScanned && (
                         <p className="text-sm text-muted-foreground">
                             Préparation de la session…
                         </p>

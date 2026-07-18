@@ -39,6 +39,7 @@ return [
         'base_url' => env('WAHA_URL'),
         'api_key' => env('WAHA_API_KEY'),
         'webhook_hmac_key' => env('WAHA_WEBHOOK_HMAC_KEY'),
+        'webhook_url' => env('WAHA_WEBHOOK_URL', env('APP_URL')),
     ],
 
 ];

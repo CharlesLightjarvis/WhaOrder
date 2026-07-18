@@ -13,14 +13,41 @@ class WahaClient
     ) {}
 
     /**
+     * @param  array{url: string, events: array<int, string>, hmacKey: string}|null  $webhook
      * @return array{name: string, status: string}
      */
-    public function startSession(string $name): array
+    public function startSession(string $name, ?array $webhook = null): array
     {
         return $this->http()->post('/api/sessions', [
             'name' => $name,
             'start' => true,
+            ...($webhook ? ['config' => ['webhooks' => [$this->webhookConfig($webhook)]]] : []),
         ])->throw()->json();
+    }
+
+    /**
+     * @param  array{url: string, events: array<int, string>, hmacKey: string}  $webhook
+     * @return array{name: string, status: string}
+     */
+    public function updateSessionWebhook(string $name, array $webhook): array
+    {
+        return $this->http()->put("/api/sessions/{$name}", [
+            'name' => $name,
+            'config' => ['webhooks' => [$this->webhookConfig($webhook)]],
+        ])->throw()->json();
+    }
+
+    /**
+     * @param  array{url: string, events: array<int, string>, hmacKey: string}  $webhook
+     * @return array{url: string, events: array<int, string>, hmac: array{key: string}}
+     */
+    private function webhookConfig(array $webhook): array
+    {
+        return [
+            'url' => $webhook['url'],
+            'events' => $webhook['events'],
+            'hmac' => ['key' => $webhook['hmacKey']],
+        ];
     }
 
     /**

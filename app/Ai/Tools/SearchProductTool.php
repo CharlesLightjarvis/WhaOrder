@@ -16,6 +16,14 @@ class SearchProductTool implements Tool
     ) {}
 
     /**
+     * Get the name the AI model uses to call this tool.
+     */
+    public function name(): string
+    {
+        return 'search_product';
+    }
+
+    /**
      * Get the description of the tool's purpose.
      */
     public function description(): Stringable|string
@@ -31,6 +39,7 @@ class SearchProductTool implements Tool
         $term = $request->string('nom')->toString();
 
         $products = Product::query()
+            ->where('merchant_id', $this->merchant->id)
             ->where('is_active', true)
             ->where('name', 'like', "%{$term}%")
             ->with('variants')

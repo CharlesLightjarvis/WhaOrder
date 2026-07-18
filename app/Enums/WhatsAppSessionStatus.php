@@ -20,4 +20,12 @@ enum WhatsAppSessionStatus: string
             self::Failed => 'Échec',
         };
     }
+
+    public function isPending(): bool
+    {
+        return match ($this) {
+            self::Working, self::Failed => false,
+            default => true,
+        };
+    }
 }

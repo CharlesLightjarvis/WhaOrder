@@ -2,6 +2,7 @@
 
 namespace App\Ai\Tools;
 
+use App\Models\Merchant;
 use App\Models\Product;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -10,6 +11,18 @@ use Stringable;
 
 class CheckStockTool implements Tool
 {
+    public function __construct(
+        private readonly Merchant $merchant,
+    ) {}
+
+    /**
+     * Get the name the AI model uses to call this tool.
+     */
+    public function name(): string
+    {
+        return 'check_stock';
+    }
+
     /**
      * Get the description of the tool's purpose.
      */
@@ -27,7 +40,10 @@ class CheckStockTool implements Tool
         $variantId = $request->string('variant_id')->toString() ?: null;
         $quantity = $request->integer('quantite');
 
-        $product = Product::query()->with('variants')->find($productId);
+        $product = Product::query()
+            ->where('merchant_id', $this->merchant->id)
+            ->with('variants')
+            ->find($productId);
 
         if (! $product || ! $product->is_active) {
             return 'Produit introuvable ou inactif.';

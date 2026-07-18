@@ -10,11 +10,13 @@ use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\WhatsAppSession;
 use App\Services\Waha\WahaClient;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -34,7 +36,27 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
     {
         app()->instance('currentMerchantId', $this->whatsAppSession->merchant_id);
 
-        $whatsappNumber = $this->normalizeChatId($this->message['from'] ?? $this->message['chatId'] ?? '');
+        $chatId = (string) ($this->message['from'] ?? $this->message['chatId'] ?? '');
+
+        if ($this->isGroupOrBroadcastChat($chatId)) {
+            Log::info('Skipping WhatsApp message from a group or broadcast chat.', ['chatId' => $chatId]);
+
+            return;
+        }
+
+        if ($this->isHistoricalMessage()) {
+            Log::info('Skipping WhatsApp message received before the session connected.', ['message' => $this->message]);
+
+            return;
+        }
+
+        if ($this->alreadyProcessed()) {
+            Log::info('Skipping already-processed WhatsApp message.', ['messageId' => $this->message['id'] ?? null]);
+
+            return;
+        }
+
+        $whatsappNumber = $this->normalizeChatId($chatId);
         $body = trim((string) ($this->message['body'] ?? ''));
 
         if ($whatsappNumber === '' || $body === '') {
@@ -46,6 +68,12 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         $merchant = $this->whatsAppSession->merchant;
 
         $conversation = $this->resolveConversation($whatsappNumber);
+
+        Log::info('Processing WhatsApp message with the AI agent.', [
+            'chatId' => $chatId,
+            'conversationId' => $conversation->id,
+            'body' => $body,
+        ]);
 
         $agent = new OrderAgent($merchant, $conversation);
         $participant = (object) ['id' => null];
@@ -68,6 +96,16 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
 
         if ($replyChatId && filled($response->text)) {
             $client->sendText($this->whatsAppSession->waha_session_name, $replyChatId, $response->text);
+
+            Log::info('Sent AI agent reply to WhatsApp chat.', [
+                'chatId' => $replyChatId,
+                'conversationId' => $conversation->id,
+            ]);
+        } else {
+            Log::warning('AI agent produced no reply text.', [
+                'chatId' => $replyChatId,
+                'conversationId' => $conversation->id,
+            ]);
         }
 
         $this->notifyMerchantOfNewOrder($client, $merchant, $conversation, $startedAt);
@@ -116,9 +154,36 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         $client->sendText($this->whatsAppSession->waha_session_name, $this->toChatId($merchant->whatsapp_admin_number), $text);
     }
 
+    private function isGroupOrBroadcastChat(string $chatId): bool
+    {
+        return str_ends_with($chatId, '@g.us') || str_ends_with($chatId, '@broadcast');
+    }
+
+    private function isHistoricalMessage(): bool
+    {
+        $timestamp = $this->message['timestamp'] ?? null;
+
+        if (! $timestamp || ! $this->whatsAppSession->connected_at) {
+            return false;
+        }
+
+        return CarbonImmutable::createFromTimestamp((int) $timestamp)->lt($this->whatsAppSession->connected_at);
+    }
+
+    private function alreadyProcessed(): bool
+    {
+        $messageId = $this->message['id'] ?? null;
+
+        if (! $messageId) {
+            return false;
+        }
+
+        return ! Cache::add("whatsapp-message-processed:{$messageId}", true, now()->addDay());
+    }
+
     private function normalizeChatId(string $chatId): string
     {
-        return str_replace('@c.us', '', $chatId);
+        return str_replace(['@c.us', '@lid', '@s.whatsapp.net'], '', $chatId);
     }
 
     private function toChatId(string $phoneNumber): string

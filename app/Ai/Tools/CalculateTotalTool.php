@@ -20,6 +20,14 @@ class CalculateTotalTool implements Tool
     ) {}
 
     /**
+     * Get the name the AI model uses to call this tool.
+     */
+    public function name(): string
+    {
+        return 'calculate_total';
+    }
+
+    /**
      * Get the description of the tool's purpose.
      */
     public function description(): Stringable|string
@@ -45,7 +53,10 @@ class CalculateTotalTool implements Tool
         $subtotal = 0.0;
 
         foreach ($items as $item) {
-            $product = Product::query()->with('variants')->find($item['product_id'] ?? null);
+            $product = Product::query()
+                ->where('merchant_id', $this->merchant->id)
+                ->with('variants')
+                ->find($item['product_id'] ?? null);
 
             if (! $product || ! $product->is_active) {
                 return 'Produit introuvable ou inactif (product_id='.($item['product_id'] ?? '?').').';

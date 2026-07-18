@@ -28,11 +28,19 @@ class FinalizeOrderTool implements Tool
     ) {}
 
     /**
+     * Get the name the AI model uses to call this tool.
+     */
+    public function name(): string
+    {
+        return 'finalize_order';
+    }
+
+    /**
      * Get the description of the tool's purpose.
      */
     public function description(): Stringable|string
     {
-        return "Finalise la commande à partir du panier déjà calculé via calculer_total. N'appelle cet outil QUE lorsque les articles, l'adresse de livraison et le moyen de paiement sont connus, et que le client a confirmé vouloir passer commande.";
+        return "Finalise la commande à partir du panier déjà calculé via calculate_total. N'appelle cet outil QUE lorsque les articles, l'adresse de livraison et le moyen de paiement sont connus, et que le client a confirmé vouloir passer commande.";
     }
 
     /**
@@ -83,9 +91,15 @@ class FinalizeOrderTool implements Tool
                 ]);
 
                 if ($item['variant_id']) {
-                    ProductVariant::query()->where('id', $item['variant_id'])->decrement('stock', $item['quantity']);
+                    ProductVariant::query()
+                        ->where('id', $item['variant_id'])
+                        ->whereHas('product', fn ($query) => $query->where('merchant_id', $this->merchant->id))
+                        ->decrement('stock', $item['quantity']);
                 } else {
-                    Product::query()->where('id', $item['product_id'])->decrement('stock', $item['quantity']);
+                    Product::query()
+                        ->where('id', $item['product_id'])
+                        ->where('merchant_id', $this->merchant->id)
+                        ->decrement('stock', $item['quantity']);
                 }
             }
 
@@ -111,9 +125,15 @@ class FinalizeOrderTool implements Tool
     private function checkInsufficientStock(array $item): ?string
     {
         if ($item['variant_id']) {
-            $stock = ProductVariant::query()->find($item['variant_id'])?->stock ?? 0;
+            $stock = ProductVariant::query()
+                ->where('id', $item['variant_id'])
+                ->whereHas('product', fn ($query) => $query->where('merchant_id', $this->merchant->id))
+                ->first()?->stock ?? 0;
         } else {
-            $stock = Product::query()->find($item['product_id'])?->stock ?? 0;
+            $stock = Product::query()
+                ->where('id', $item['product_id'])
+                ->where('merchant_id', $this->merchant->id)
+                ->first()?->stock ?? 0;
         }
 
         if ($stock < $item['quantity']) {

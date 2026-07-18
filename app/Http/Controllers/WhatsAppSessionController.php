@@ -9,7 +9,9 @@ use App\Http\Requests\WhatsAppSessions\StoreWhatsAppSessionRequest;
 use App\Http\Resources\WhatsAppSessionResource;
 use App\Models\WhatsAppSession;
 use App\Repositories\WhatsAppSessions\WhatsAppSessionRepository;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,6 +29,21 @@ class WhatsAppSessionController extends Controller
      */
     public function index(): Response
     {
+        foreach ($this->repository->all() as $session) {
+            if (! $session->status->isPending()) {
+                continue;
+            }
+
+            try {
+                $this->refreshWhatsAppSessionStatus->handle($session);
+            } catch (RequestException $exception) {
+                Log::warning('Unable to refresh WhatsApp session status from WAHA.', [
+                    'session' => $session->waha_session_name,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return Inertia::render('whatsapp-sessions/index', [
             'sessions' => WhatsAppSessionResource::collection($this->repository->all()),
         ]);

@@ -22,7 +22,11 @@ class ConnectWhatsAppSession
         // globally unique, unlike our own free-text, merchant-scoped label.
         $name = 'session-'.Str::lower(Str::random(20));
 
-        $session = $this->client->startSession($name);
+        $session = $this->client->startSession($name, [
+            'url' => rtrim((string) config('services.waha.webhook_url'), '/').'/webhooks/whatsapp',
+            'events' => ['message', 'session.status'],
+            'hmacKey' => (string) config('services.waha.webhook_hmac_key'),
+        ]);
 
         return DB::transaction(fn () => $this->repository->create([
             'label' => $label,
