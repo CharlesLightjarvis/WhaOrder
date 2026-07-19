@@ -144,19 +144,17 @@ class SearchProductTool implements Tool
                 continue;
             }
 
-            foreach ($product->variants as $variant) {
-                $lines[] = sprintf(
-                    '%d. %s (%s) — %s %s — stock=%d — id=%s/%s',
-                    $number++,
-                    $product->name,
-                    $variant->name,
-                    number_format((float) ($variant->price ?? $product->price), 2),
-                    $currency,
-                    $variant->stock,
-                    $product->id,
-                    $variant->id,
-                );
-            }
+            $variantList = $product->variants
+                ->map(fn ($variant) => "{$variant->name} ({$variant->stock} en stock)")
+                ->implode(', ');
+
+            $lines[] = sprintf(
+                '%d. %s (%s) — id=%s [plusieurs variantes, utilise get_product_variants pour le détail et les prix]',
+                $number++,
+                $product->name,
+                $variantList,
+                $product->id,
+            );
         }
 
         return implode("\n", $lines);

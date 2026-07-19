@@ -92,6 +92,57 @@ class WahaClient
         ])->throw()->json();
     }
 
+    /**
+     * @return array{id: string}
+     */
+    public function sendImage(string $session, string $chatId, string $url, ?string $caption = null): array
+    {
+        return $this->http()->post('/api/sendImage', [
+            'session' => $session,
+            'chatId' => $chatId,
+            'file' => [
+                'mimetype' => 'image/jpeg',
+                'url' => $url,
+                'filename' => 'image.jpg',
+            ],
+            'caption' => $caption,
+        ])->throw()->json();
+    }
+
+    /**
+     * @return array{id: string}
+     */
+    public function sendFile(string $session, string $chatId, string $base64Data, string $mimetype, string $filename): array
+    {
+        return $this->http()->post('/api/sendFile', [
+            'session' => $session,
+            'chatId' => $chatId,
+            'file' => [
+                'mimetype' => $mimetype,
+                'filename' => $filename,
+                'data' => $base64Data,
+            ],
+        ])->throw()->json();
+    }
+
+    /**
+     * Resolve a WhatsApp @lid (Linked ID) to the contact's real phone
+     * number, since some chats now route through a lid instead of a
+     * phone-number-based chat id. Returns null if WAHA has no mapping.
+     */
+    public function resolveLidToPhoneNumber(string $session, string $lid): ?string
+    {
+        $response = $this->http()->get("/api/{$session}/lids/{$lid}");
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $phoneNumberJid = $response->json('pn');
+
+        return $phoneNumberJid ? str_replace('@c.us', '', $phoneNumberJid) : null;
+    }
+
     private function http(): PendingRequest
     {
         return Http::baseUrl(rtrim($this->baseUrl, '/'))

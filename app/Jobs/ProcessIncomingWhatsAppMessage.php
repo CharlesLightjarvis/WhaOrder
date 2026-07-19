@@ -6,12 +6,9 @@ use App\Ai\Agents\OrderAgent;
 use App\Enums\ConversationStatus;
 use App\Models\Conversation;
 use App\Models\Customer;
-use App\Models\Merchant;
-use App\Models\Order;
 use App\Models\WhatsAppSession;
 use App\Services\Waha\WahaClient;
 use Carbon\CarbonImmutable;
-use Carbon\CarbonInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
@@ -58,7 +55,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             return;
         }
 
-        $whatsappNumber = $this->normalizeChatId($chatId);
+        $whatsappNumber = $this->resolvePhoneNumber($chatId, $client);
         $body = trim((string) ($this->message['body'] ?? ''));
 
         if ($whatsappNumber === '' || $body === '') {
@@ -77,7 +74,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             'body' => $body,
         ]);
 
-        $agent = new OrderAgent($merchant, $conversation);
+        $agent = new OrderAgent($merchant, $conversation, $client, $this->whatsAppSession->waha_session_name, $chatId);
         $participant = (object) ['id' => $conversation->customer_id];
 
         if ($conversation->agent_conversation_id) {
@@ -85,8 +82,6 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         } else {
             $agent->forUser($participant);
         }
-
-        $startedAt = now();
 
         try {
             $response = $agent->prompt($body);
@@ -133,8 +128,6 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'conversationId' => $conversation->id,
             ]);
         }
-
-        $this->notifyMerchantOfNewOrder($client, $merchant, $conversation, $startedAt);
     }
 
     private function resolveConversation(string $whatsappNumber): Conversation
@@ -156,28 +149,6 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'status' => ConversationStatus::Active,
             ]);
         });
-    }
-
-    private function notifyMerchantOfNewOrder(WahaClient $client, Merchant $merchant, Conversation $conversation, CarbonInterface $since): void
-    {
-        if (! $merchant->whatsapp_admin_number) {
-            return;
-        }
-
-        $order = Order::query()
-            ->where('conversation_id', $conversation->id)
-            ->where('created_at', '>=', $since)
-            ->latest()
-            ->first();
-
-        if (! $order) {
-            return;
-        }
-
-        $text = "🆕 Nouvelle commande #{$order->id} — ".number_format((float) $order->total, 2)." {$merchant->currency->value}"
-            .($order->delivery_city ? " — {$order->delivery_city}" : '');
-
-        $client->sendText($this->whatsAppSession->waha_session_name, $this->toChatId($merchant->whatsapp_admin_number), $text);
     }
 
     private function isGroupOrBroadcastChat(string $chatId): bool
@@ -212,8 +183,25 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         return str_replace(['@c.us', '@lid', '@s.whatsapp.net'], '', $chatId);
     }
 
-    private function toChatId(string $phoneNumber): string
+    /**
+     * WhatsApp now routes some chats through an opaque @lid (Linked ID)
+     * instead of the phone-number-based chat id. Resolve it to the real
+     * phone number so customer records aren't keyed by the wrong value.
+     */
+    private function resolvePhoneNumber(string $chatId, WahaClient $client): string
     {
-        return preg_replace('/\D/', '', $phoneNumber).'@c.us';
+        if (! str_ends_with($chatId, '@lid')) {
+            return $this->normalizeChatId($chatId);
+        }
+
+        $resolved = $client->resolveLidToPhoneNumber($this->whatsAppSession->waha_session_name, $chatId);
+
+        if ($resolved) {
+            return $resolved;
+        }
+
+        Log::warning('Could not resolve WhatsApp lid to a phone number, storing the lid instead.', ['chatId' => $chatId]);
+
+        return $this->normalizeChatId($chatId);
     }
 }

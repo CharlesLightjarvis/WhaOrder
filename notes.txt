@@ -94,12 +94,16 @@ WHATSAPP_HOOK_URL=https://<ton-tunnel-ngrok-actuel>/webhooks/whatsapp
 
 ==== AMELIORATIONS +++++
 
-les chiffres dans lordre nest pas respecter quand je dis 2 ca tague plutôt le 3 pourquoi ? askip cest un tableau mais sur whatsapp ca prete a confusion
-enlever les etoiles
-montrer les phptos des produits 
-
 discuter les prix 
 
 rien nest enregistrer dans la BD cleint adresses paniers commandes etc
 
-quand le client 
+1. Le vrai trou : les preuves de paiement. Le modèle PaymentProof a un champ image_url — mais ProcessIncomingWhatsAppMessage ignore silencieusement tout message sans texte (body vide), donc si un client envoie une capture d'écran Mobile Money, elle disparaît. Vu que XOF/XAF/NGN/GHS pointent vers des marchés où la preuve de paiement par capture WhatsApp est la norme, c'est un vrai trou fonctionnel, pas un détail.
+
+4. Confirmation client après finalisation d'un statut mis à jour par le commerçant. Aujourd'hui seul le commerçant est notifié des nouvelles commandes. Un client qui ne sait pas si sa commande est "en préparation" stresse et relance par message — un push WhatsApp automatique sur changement de statut fermerait la boucle.
+
+
+faire un agent pour le suivi de commandes
+un agent pour gerer les données personnelles du user (modification etc)
+
+ quand une commande est terminée la conversation se cloture et une fois un nouveau message ca cree une nouvelle conversation pourquoi ? est ce quue ca doit etre le flow normal ca ? car il doit se rappeller des clients non ? pour avoir son non son adresse etc tu vois comment ,?

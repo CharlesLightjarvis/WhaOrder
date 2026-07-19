@@ -2,6 +2,7 @@
 
 namespace App\Ai\Tools;
 
+use App\Actions\Products\NormalizeVariantId;
 use App\Models\Merchant;
 use App\Models\Product;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -13,6 +14,7 @@ class CheckStockTool implements Tool
 {
     public function __construct(
         private readonly Merchant $merchant,
+        private readonly NormalizeVariantId $normalizeVariantId,
     ) {}
 
     /**
@@ -37,7 +39,7 @@ class CheckStockTool implements Tool
     public function handle(Request $request): Stringable|string
     {
         $productId = $request->string('product_id')->toString();
-        $variantId = $request->string('variant_id')->toString() ?: null;
+        $variantId = $this->normalizeVariantId->handle($request->string('variant_id')->toString());
         $quantity = $request->integer('quantite');
 
         $product = Product::query()

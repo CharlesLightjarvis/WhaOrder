@@ -2,6 +2,7 @@
 
 namespace App\Ai\Tools;
 
+use App\Actions\Products\NormalizeVariantId;
 use App\Enums\PaymentMethod;
 use App\Models\Conversation;
 use App\Models\Merchant;
@@ -17,6 +18,7 @@ class CalculateTotalTool implements Tool
     public function __construct(
         private readonly Merchant $merchant,
         private readonly Conversation $conversation,
+        private readonly NormalizeVariantId $normalizeVariantId,
     ) {}
 
     /**
@@ -32,7 +34,7 @@ class CalculateTotalTool implements Tool
      */
     public function description(): Stringable|string
     {
-        return "Recalcule le panier et son total à partir de la liste COMPLÈTE des articles actuellement discutés avec le client (pas seulement les nouveaux). Met aussi à jour l'adresse de livraison et le moyen de paiement si le client les a donnés. Retourne un récapitulatif à présenter au client.";
+        return "Recalcule le panier et son total à partir de la liste COMPLÈTE des articles actuellement discutés avec le client (pas seulement les nouveaux). Met aussi à jour le nom du client, l'adresse de livraison et le moyen de paiement si le client les a donnés. Retourne un récapitulatif à présenter au client.";
     }
 
     /**
@@ -41,6 +43,7 @@ class CalculateTotalTool implements Tool
     public function handle(Request $request): Stringable|string
     {
         $items = $request->array('items');
+        $customerName = $request->string('nom_client')->toString() ?: null;
         $address = $request->string('adresse_livraison')->toString() ?: null;
         $city = $request->string('ville_livraison')->toString() ?: null;
         $rawPaymentMethod = $request->string('methode_paiement')->toString() ?: null;
@@ -63,9 +66,10 @@ class CalculateTotalTool implements Tool
             }
 
             $variant = null;
+            $variantId = $this->normalizeVariantId->handle($item['variant_id'] ?? null);
 
-            if (! empty($item['variant_id'])) {
-                $variant = $product->variants->firstWhere('id', $item['variant_id']);
+            if ($variantId) {
+                $variant = $product->variants->firstWhere('id', $variantId);
 
                 if (! $variant) {
                     return "Variante introuvable pour {$product->name}.";
@@ -109,6 +113,7 @@ class CalculateTotalTool implements Tool
             'subtotal' => $subtotal,
             'delivery_fee' => $deliveryFee,
             'total' => $subtotal + $deliveryFee,
+            'customer_name' => $customerName ?? ($previousDraft['customer_name'] ?? null),
             'delivery_address_text' => $address ?? ($previousDraft['delivery_address_text'] ?? null),
             'delivery_city' => $city ?? ($previousDraft['delivery_city'] ?? null),
             'payment_method' => $this->normalizePaymentMethod($rawPaymentMethod) ?? ($previousDraft['payment_method'] ?? null),
@@ -155,12 +160,22 @@ class CalculateTotalTool implements Tool
             ."\nLivraison : ".number_format($draftOrder['delivery_fee'], 2)." {$currency}"
             ."\nTotal : ".number_format($draftOrder['total'], 2)." {$currency}";
 
-        $summary .= ($draftOrder['delivery_address_text'] || $draftOrder['delivery_city'])
-            ? "\nAdresse : ".trim(($draftOrder['delivery_address_text'] ?? '').' '.($draftOrder['delivery_city'] ?? ''))
-            : "\nAdresse de livraison manquante.";
+        $knownName = $draftOrder['customer_name'] ?? $this->conversation->customer?->name;
+
+        $summary .= $knownName
+            ? "\nNom : {$knownName}"
+            : "\nNom manquant.";
+
+        $summary .= $draftOrder['delivery_city']
+            ? "\nVille : {$draftOrder['delivery_city']}"
+            : "\nVille de livraison manquante.";
+
+        $summary .= $draftOrder['delivery_address_text']
+            ? "\nAdresse : {$draftOrder['delivery_address_text']}"
+            : "\nAdresse détaillée manquante.";
 
         $summary .= $draftOrder['payment_method']
-            ? "\nMoyen de paiement : {$draftOrder['payment_method']}"
+            ? "\nMoyen de paiement : ".PaymentMethod::from($draftOrder['payment_method'])->label()
             : "\nMoyen de paiement manquant.";
 
         return $summary;
@@ -180,14 +195,18 @@ class CalculateTotalTool implements Tool
                 ]))
                 ->description('La liste COMPLÈTE des articles actuellement dans le panier du client (pas seulement les nouveaux).')
                 ->required(),
+            'nom_client' => $schema->string()
+                ->description('Le nom du client, si donné pendant la commande. Laisse vide si déjà connu ou pas encore donné.')
+                ->nullable(),
             'adresse_livraison' => $schema->string()
-                ->description('Adresse de livraison donnée par le client, si connue.')
+                ->description("Adresse détaillée (quartier, rue, repère) donnée par le client, SANS le nom de la ville : la ville va uniquement dans ville_livraison.")
                 ->nullable(),
             'ville_livraison' => $schema->string()
-                ->description('Ville de livraison, si connue.')
+                ->description('Ville de livraison. Obligatoire avant de finaliser la commande : demande-la explicitement si le client ne la précise pas de lui-même.')
                 ->nullable(),
             'methode_paiement' => $schema->string()
-                ->description('Moyen de paiement choisi par le client (mobile money, espèces, carte), si connu.')
+                ->enum(PaymentMethod::class)
+                ->description('Moyen de paiement choisi par le client, si connu. Doit être une des valeurs de PaymentMethod (mobile_money, cash, card, other), jamais le texte libre du client.')
                 ->nullable(),
         ];
     }
