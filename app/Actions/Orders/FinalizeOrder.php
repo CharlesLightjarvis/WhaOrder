@@ -3,6 +3,7 @@
 namespace App\Actions\Orders;
 
 use App\Actions\Addresses\SaveDeliveryAddress;
+use App\Actions\Products\SyncProductStockFromVariants;
 use App\Enums\ConversationStatus;
 use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
@@ -23,6 +24,7 @@ class FinalizeOrder
     public function __construct(
         private readonly SaveDeliveryAddress $saveDeliveryAddress,
         private readonly CustomerRepository $customers,
+        private readonly SyncProductStockFromVariants $syncProductStock,
     ) {}
 
     /**
@@ -61,6 +63,12 @@ class FinalizeOrder
                         ->where('id', $item['variant_id'])
                         ->whereHas('product', fn ($query) => $query->where('merchant_id', $merchant->id))
                         ->decrement('stock', $item['quantity']);
+
+                    $product = Product::query()->find($item['product_id']);
+
+                    if ($product) {
+                        $this->syncProductStock->handle($product);
+                    }
                 } else {
                     Product::query()
                         ->where('id', $item['product_id'])

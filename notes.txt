@@ -107,3 +107,10 @@ faire un agent pour le suivi de commandes
 un agent pour gerer les données personnelles du user (modification etc)
 
  quand une commande est terminée la conversation se cloture et une fois un nouveau message ca cree une nouvelle conversation pourquoi ? est ce quue ca doit etre le flow normal ca ? car il doit se rappeller des clients non ? pour avoir son non son adresse etc tu vois comment ,?
+
+ J'ai installé deux choses pour que Browsershot (spatie/laravel-pdf) puisse générer les PDF :
+
+1. npm install puppeteer — le package Node qui pilote Chrome.
+2. npx puppeteer browsers install chrome-headless-shell — le binaire Chrome headless lui-même (version 150.0.7871.24), téléchargé dans C:\Users\LENOVO\.cache\puppeteer\. C'est ce qui manquait en second (la première erreur était "module puppeteer introuvable", la deuxième "chrome-headless-shell introuvable").
+
+Les deux sont dans package.json/package-lock.json, déjà commités et pushés.

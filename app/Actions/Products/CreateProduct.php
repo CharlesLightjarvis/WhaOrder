@@ -11,6 +11,7 @@ class CreateProduct
     public function __construct(
         private readonly ProductRepository $repository,
         private readonly StoreUploadedImages $storeUploadedImages,
+        private readonly SyncProductStockFromVariants $syncProductStock,
     ) {}
 
     /**
@@ -39,6 +40,8 @@ class CreateProduct
 
                 $this->storeUploadedImages->handle($product, $variantImages, $variant);
             }
+
+            $this->syncProductStock->handle($product);
 
             return $product->fresh(['category', 'images', 'variants.images']);
         });

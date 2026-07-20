@@ -13,6 +13,7 @@ class UpdateProduct
         private readonly ProductRepository $repository,
         private readonly StoreUploadedImages $storeUploadedImages,
         private readonly PruneProductImages $pruneProductImages,
+        private readonly SyncProductStockFromVariants $syncProductStock,
     ) {}
 
     /**
@@ -56,6 +57,8 @@ class UpdateProduct
             }
 
             $product->variants()->whereNotIn('id', $keptVariantIds)->delete();
+
+            $this->syncProductStock->handle($product);
 
             return $product->fresh(['category', 'images', 'variants.images']);
         });

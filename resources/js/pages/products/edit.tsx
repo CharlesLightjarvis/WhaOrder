@@ -70,6 +70,12 @@ export default function ProductEdit() {
             ),
         );
 
+    const hasVariants = variants.length > 0;
+    const variantsStockTotal = variants.reduce(
+        (sum, variant) => sum + (Number(variant.stock) || 0),
+        0,
+    );
+
     return (
         <>
             <Head title={`Modifier — ${product.name}`} />
@@ -188,16 +194,42 @@ export default function ProductEdit() {
                                         <Label htmlFor="stock">Stock *</Label>
                                         <Input
                                             id="stock"
-                                            name="stock"
+                                            name={
+                                                hasVariants
+                                                    ? undefined
+                                                    : 'stock'
+                                            }
                                             type="number"
                                             min={0}
-                                            defaultValue={product.stock}
                                             placeholder="20"
+                                            disabled={hasVariants}
+                                            {...(hasVariants
+                                                ? { value: variantsStockTotal }
+                                                : {
+                                                      defaultValue:
+                                                          product.stock,
+                                                  })}
                                             onChange={() =>
                                                 clearErrors('stock')
                                             }
                                         />
-                                        <InputError message={errors.stock} />
+                                        {hasVariants && (
+                                            <input
+                                                type="hidden"
+                                                name="stock"
+                                                value={variantsStockTotal}
+                                            />
+                                        )}
+                                        {hasVariants ? (
+                                            <p className="text-xs text-muted-foreground">
+                                                Calculé automatiquement à
+                                                partir du stock des variantes.
+                                            </p>
+                                        ) : (
+                                            <InputError
+                                                message={errors.stock}
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="sm:col-span-1 lg:col-span-2">

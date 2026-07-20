@@ -51,6 +51,12 @@ export default function ProductCreate({ categories }: PageProps) {
             ),
         );
 
+    const hasVariants = variants.length > 0;
+    const variantsStockTotal = variants.reduce(
+        (sum, variant) => sum + (Number(variant.stock) || 0),
+        0,
+    );
+
     return (
         <>
             <Head title="Créer un produit" />
@@ -164,15 +170,41 @@ export default function ProductCreate({ categories }: PageProps) {
                                         <Label htmlFor="stock">Stock *</Label>
                                         <Input
                                             id="stock"
-                                            name="stock"
+                                            name={
+                                                hasVariants
+                                                    ? undefined
+                                                    : 'stock'
+                                            }
                                             type="number"
                                             min={0}
                                             placeholder="20"
+                                            disabled={hasVariants}
+                                            value={
+                                                hasVariants
+                                                    ? variantsStockTotal
+                                                    : undefined
+                                            }
                                             onChange={() =>
                                                 clearErrors('stock')
                                             }
                                         />
-                                        <InputError message={errors.stock} />
+                                        {hasVariants && (
+                                            <input
+                                                type="hidden"
+                                                name="stock"
+                                                value={variantsStockTotal}
+                                            />
+                                        )}
+                                        {hasVariants ? (
+                                            <p className="text-xs text-muted-foreground">
+                                                Calculé automatiquement à
+                                                partir du stock des variantes.
+                                            </p>
+                                        ) : (
+                                            <InputError
+                                                message={errors.stock}
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="sm:col-span-1 lg:col-span-2">
