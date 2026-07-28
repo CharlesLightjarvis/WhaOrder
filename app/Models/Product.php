@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-#[Fillable(['category_id', 'name', 'slug', 'description', 'price', 'stock', 'is_active'])]
+#[Fillable(['category_id', 'name', 'slug', 'description', 'price', 'stock', 'is_active', 'low_stock_alerted_at'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -24,6 +24,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'is_active' => 'boolean',
+            'low_stock_alerted_at' => 'datetime',
         ];
     }
 

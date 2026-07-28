@@ -14,6 +14,7 @@ class UpdateProduct
         private readonly StoreUploadedImages $storeUploadedImages,
         private readonly PruneProductImages $pruneProductImages,
         private readonly SyncProductStockFromVariants $syncProductStock,
+        private readonly CheckLowStock $checkLowStock,
     ) {}
 
     /**
@@ -54,11 +55,13 @@ class UpdateProduct
 
                 $this->pruneProductImages->handle($variant->images(), $variantKeepImageIds);
                 $this->storeUploadedImages->handle($product, $variantImages, $variant);
+                $this->checkLowStock->handleVariant($variant);
             }
 
             $product->variants()->whereNotIn('id', $keptVariantIds)->delete();
 
             $this->syncProductStock->handle($product);
+            $this->checkLowStock->handle($product);
 
             return $product->fresh(['category', 'images', 'variants.images']);
         });

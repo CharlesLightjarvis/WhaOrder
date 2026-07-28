@@ -3,6 +3,7 @@
 namespace App\Actions\Orders;
 
 use App\Actions\Addresses\SaveDeliveryAddress;
+use App\Actions\Products\CheckLowStock;
 use App\Actions\Products\SyncProductStockFromVariants;
 use App\Enums\ConversationStatus;
 use App\Enums\DeliveryStatus;
@@ -25,6 +26,7 @@ class FinalizeOrder
         private readonly SaveDeliveryAddress $saveDeliveryAddress,
         private readonly CustomerRepository $customers,
         private readonly SyncProductStockFromVariants $syncProductStock,
+        private readonly CheckLowStock $checkLowStock,
     ) {}
 
     /**
@@ -68,12 +70,25 @@ class FinalizeOrder
 
                     if ($product) {
                         $this->syncProductStock->handle($product);
+                        $this->checkLowStock->handle($product);
+                    }
+
+                    $variant = ProductVariant::query()->find($item['variant_id']);
+
+                    if ($variant) {
+                        $this->checkLowStock->handleVariant($variant);
                     }
                 } else {
                     Product::query()
                         ->where('id', $item['product_id'])
                         ->where('merchant_id', $merchant->id)
                         ->decrement('stock', $item['quantity']);
+
+                    $product = Product::query()->find($item['product_id']);
+
+                    if ($product) {
+                        $this->checkLowStock->handle($product);
+                    }
                 }
             }
 

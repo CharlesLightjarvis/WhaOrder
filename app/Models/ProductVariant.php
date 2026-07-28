@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['sku', 'name', 'price', 'stock'])]
+#[Fillable(['sku', 'name', 'price', 'stock', 'low_stock_alerted_at'])]
 class ProductVariant extends Model
 {
     /** @use HasFactory<ProductVariantFactory> */
@@ -20,6 +20,7 @@ class ProductVariant extends Model
     {
         return [
             'price' => 'decimal:2',
+            'low_stock_alerted_at' => 'datetime',
         ];
     }
 

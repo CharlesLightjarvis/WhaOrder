@@ -2,10 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Ai\Agents\ChiefAgent;
 use App\Ai\Agents\OrderAgent;
+use App\Ai\Agents\SupportAgent;
 use App\Enums\ConversationStatus;
+use App\Enums\MessageIntent;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Merchant;
 use App\Models\WhatsAppSession;
 use App\Services\Waha\WahaClient;
 use Carbon\CarbonImmutable;
@@ -74,7 +78,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             'body' => $body,
         ]);
 
-        $agent = new OrderAgent($merchant, $conversation, $client, $this->whatsAppSession->waha_session_name, $chatId);
+        $agent = $this->resolveAgent($merchant, $conversation, $body, $client, $chatId);
         $participant = (object) ['id' => $conversation->customer_id];
 
         if ($conversation->agent_conversation_id) {
@@ -111,6 +115,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         $conversation->update([
             'agent_conversation_id' => $agent->currentConversation(),
             'last_message_at' => now(),
+            'abandoned_reminder_sent_at' => null,
         ]);
 
         $replyChatId = $this->message['from'] ?? $this->message['chatId'] ?? null;
@@ -127,6 +132,44 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'chatId' => $replyChatId,
                 'conversationId' => $conversation->id,
             ]);
+        }
+    }
+
+    /**
+     * Route the message to the right specialized agent: OrderAgent for
+     * anything about browsing/building an order, SupportAgent for
+     * everything else (delivery/order-status questions, complaints, and
+     * courtesy messages like "merci"). Both agents continue the same
+     * conversation id, so the memory stays continuous no matter which one
+     * handles a given message.
+     */
+    private function resolveAgent(Merchant $merchant, Conversation $conversation, string $body, WahaClient $client, string $chatId): OrderAgent|SupportAgent
+    {
+        if (filled($conversation->draft_order)) {
+            return new OrderAgent($merchant, $conversation, $client, $this->whatsAppSession->waha_session_name, $chatId);
+        }
+
+        $intent = $this->classifyIntent($body);
+
+        if ($intent === MessageIntent::Order) {
+            return new OrderAgent($merchant, $conversation, $client, $this->whatsAppSession->waha_session_name, $chatId);
+        }
+
+        return new SupportAgent($merchant, $conversation);
+    }
+
+    private function classifyIntent(string $body): MessageIntent
+    {
+        try {
+            $result = (new ChiefAgent)->prompt($body);
+
+            return MessageIntent::tryFrom($result['intent'] ?? '') ?? MessageIntent::Order;
+        } catch (RequestException|AiException $exception) {
+            Log::warning('Message intent classification failed, defaulting to order.', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return MessageIntent::Order;
         }
     }
 

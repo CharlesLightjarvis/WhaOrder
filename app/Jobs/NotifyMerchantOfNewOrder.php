@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\WhatsApp\BuildWhatsAppChatId;
 use App\Models\Order;
 use App\Services\Waha\WahaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +21,7 @@ class NotifyMerchantOfNewOrder implements ShouldQueue
         public readonly string $wahaSessionName,
     ) {}
 
-    public function handle(WahaClient $client): void
+    public function handle(WahaClient $client, BuildWhatsAppChatId $buildChatId): void
     {
         $merchant = $this->order->merchant;
         $adminNumber = $merchant->whatsapp_admin_number;
@@ -33,7 +34,7 @@ class NotifyMerchantOfNewOrder implements ShouldQueue
             .($this->order->delivery_city ? " — {$this->order->delivery_city}" : '');
 
         try {
-            $client->sendText($this->wahaSessionName, $this->toChatId($adminNumber), $text);
+            $client->sendText($this->wahaSessionName, $buildChatId->handle($adminNumber), $text);
         } catch (RequestException $exception) {
             Log::warning('Failed to notify merchant admin of new order.', [
                 'orderId' => $this->order->id,
@@ -41,10 +42,5 @@ class NotifyMerchantOfNewOrder implements ShouldQueue
                 'message' => $exception->getMessage(),
             ]);
         }
-    }
-
-    private function toChatId(string $phoneNumber): string
-    {
-        return preg_replace('/\D/', '', $phoneNumber).'@c.us';
     }
 }

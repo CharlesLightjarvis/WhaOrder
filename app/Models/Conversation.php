@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['customer_id', 'agent_conversation_id', 'status', 'draft_order', 'last_message_at'])]
+#[Fillable(['customer_id', 'agent_conversation_id', 'status', 'draft_order', 'last_message_at', 'abandoned_reminder_sent_at'])]
 class Conversation extends Model
 {
     /** @use HasFactory<ConversationFactory> */
@@ -24,6 +24,7 @@ class Conversation extends Model
             'status' => ConversationStatus::class,
             'draft_order' => 'array',
             'last_message_at' => 'datetime',
+            'abandoned_reminder_sent_at' => 'datetime',
         ];
     }
 
