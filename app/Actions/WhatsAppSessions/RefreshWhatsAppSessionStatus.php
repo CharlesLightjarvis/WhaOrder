@@ -31,6 +31,14 @@ class RefreshWhatsAppSessionStatus
             $data['qr_code'] = null;
             $data['connected_at'] = $whatsAppSession->connected_at ?? now();
             $data['last_active_at'] = now();
+            $data['profile_name'] = $remote['me']['pushName'] ?? $whatsAppSession->profile_name;
+
+            if (! empty($remote['me']['id'])) {
+                $data['profile_picture_url'] = $this->client->getProfilePicture(
+                    $whatsAppSession->waha_session_name,
+                    $remote['me']['id'],
+                ) ?? $whatsAppSession->profile_picture_url;
+            }
         } else {
             // The QR code is often ready before the remote "status" field
             // catches up, so we poll for it directly instead of waiting.

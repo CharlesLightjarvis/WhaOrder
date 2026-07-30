@@ -16,11 +16,15 @@ class StoreUploadedImages
     public function handle(Product $product, array $files, ?ProductVariant $variant = null): void
     {
         DB::transaction(function () use ($product, $files, $variant): void {
+            $folder = "whaorder/images/{$product->merchant->slug}/products";
+
             foreach ($files as $file) {
-                $path = $file->store("products/{$product->id}", 'public');
+                $path = $folder.'/'.$file->getClientOriginalName();
+
+                Storage::disk('imagekit')->put($path, $file->get());
 
                 $product->images()->create([
-                    'url' => Storage::disk('public')->url($path),
+                    'url' => rtrim((string) config('filesystems.disks.imagekit.endpoint_url'), '/').'/'.$path,
                     'variant_id' => $variant?->id,
                 ]);
             }

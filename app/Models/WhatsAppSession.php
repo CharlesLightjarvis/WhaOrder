@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['label', 'waha_session_name', 'status', 'phone_number', 'qr_code', 'connected_at', 'last_active_at'])]
+#[Fillable(['label', 'waha_session_name', 'status', 'phone_number', 'profile_name', 'profile_picture_url', 'qr_code', 'connected_at', 'last_active_at'])]
 class WhatsAppSession extends Model
 {
     use BelongsToMerchant, HasUuids;

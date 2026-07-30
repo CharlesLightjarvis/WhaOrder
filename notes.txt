@@ -114,3 +114,45 @@ un agent pour gerer les données personnelles du user (modification etc)
 2. npx puppeteer browsers install chrome-headless-shell — le binaire Chrome headless lui-même (version 150.0.7871.24), téléchargé dans C:\Users\LENOVO\.cache\puppeteer\. C'est ce qui manquait en second (la première erreur était "module puppeteer introuvable", la deuxième "chrome-headless-shell introuvable").
 
 Les deux sont dans package.json/package-lock.json, déjà commités et pushés.
+
+choisir lespace de temps de relance des clients
+
+
+concernant les status de livraison quand ladmin clique sur un statut est ce quil peut venir en arriere ? et reprogresser ? dans son dahsboard ?
+
+Oui. Dans le dashboard, l’admin peut revenir à un statut précédent puis faire progresser à nouveau la livraison, mais avec des règles strictes pour éviter les erreurs.
+
+Exemple de cycle :
+
+Préparation → Expédiée → En transit → Livrée
+
+L’admin pourrait faire :
+
+En transit → Expédiée → En transit → Livrée
+
+Je recommande toutefois :
+
+Retour uniquement vers un statut compatible, pas directement de Livrée à Préparation.
+Confirmation obligatoire pour toute régression.
+Motif obligatoire : erreur de saisie, colis retourné, livraison refusée, incident transporteur…
+Historique conservé avec l’ancien statut, le nouveau statut, la date et l’administrateur.
+Notification éventuelle au fournisseur ou au demandeur.
+Une livraison déjà clôturée ou facturée ne doit être modifiable que par un administrateur autorisé.
+
+Dans l’interface, chaque statut peut ouvrir un menu :
+
+Faire progresser · Revenir au statut précédent · Signaler un incident
+
+Donc oui : l’admin garde la maîtrise du workflow, sans que les changements effacent la traçabilité.
+
+frais de livraison (ladmin peut decider dans le dashboard )
+la devise pour les paiements
+
+alert pour les stocks
+
+- Broadcast marketing — envoyer une promo aux anciens clients ("Nouveau arrivage, -10% cette semaine"). Fort potentiel de revenu récurrent pour le commerçant, donc argument de vente naturel.
+- Import catalogue en masse (CSV/Excel) — pour l'onboarding d'un commerçant qui a déjà 200 produits ailleurs, saisir un par un est un frein réel à l'adoption.
+- Avis/notation post-livraison — un message automatique après Delivered ("Comment était votre commande ?") nourrit la confiance et donne du contenu marketing au commerçant.
+
+
+le client peut avoir plusieurs adresses

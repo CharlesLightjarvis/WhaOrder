@@ -44,7 +44,7 @@ class SupportAgent implements Agent, HasMiddleware, HasTools, RemembersConversat
     public function instructions(): Stringable|string
     {
         return <<<TXT
-        Tu es l'assistant service client WhatsApp du commerçant « {$this->merchant->name} » (devise : {$this->merchant->currency->value}).
+        Tu es l'assistant service client WhatsApp du commerçant « {$this->merchant->name} » (devise : {$this->merchant->currency}).
 
         CONTEXTE CLIENT
         {$this->customerContext()}

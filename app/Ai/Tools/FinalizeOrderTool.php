@@ -66,7 +66,7 @@ class FinalizeOrderTool implements Tool
         NotifyMerchantOfNewOrder::dispatch($order, $this->sessionName);
         GenerateAndSendInvoice::dispatch($order, $this->sessionName, $this->chatId);
 
-        return "Commande #{$order->id} confirmée. Total : ".number_format($draftOrder['total'], 2)." {$this->merchant->currency->value}.";
+        return "Commande #{$order->id} confirmée. Total : ".number_format($draftOrder['total'], 2)." {$this->merchant->currency}.";
     }
 
     /**

@@ -1,6 +1,11 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Laravel\Fortify\Features;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::registration());
@@ -12,7 +17,29 @@ test('registration screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('new users can register', function () {
+test('new users can register, along with their own merchant', function () {
+    Http::fake(['ipapi.co/*' => Http::response(['currency' => 'XOF', 'timezone' => 'Africa/Abidjan'])]);
+
+    $response = $this->call('POST', route('register.store'), [
+        'name' => 'Test User',
+        'business_name' => 'Ma Boutique',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ], server: ['REMOTE_ADDR' => '102.176.0.1']);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('dashboard', absolute: false));
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+
+    expect($user->merchant)->not->toBeNull()
+        ->and($user->merchant->name)->toBe('Ma Boutique')
+        ->and($user->merchant->currency)->toBe('XOF')
+        ->and($user->merchant->timezone)->toBe('Africa/Abidjan');
+});
+
+test('registration requires a business name', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -20,6 +47,6 @@ test('new users can register', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertSessionHasErrors('business_name');
+    $this->assertGuest();
 });

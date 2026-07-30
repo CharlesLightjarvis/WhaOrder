@@ -30,7 +30,7 @@ class NotifyMerchantOfNewOrder implements ShouldQueue
             return;
         }
 
-        $text = "🆕 Nouvelle commande #{$this->order->id} — ".number_format((float) $this->order->total, 2)." {$merchant->currency->value}"
+        $text = "🆕 Nouvelle commande #{$this->order->id} — ".number_format((float) $this->order->total, 2)." {$merchant->currency}"
             .($this->order->delivery_city ? " — {$this->order->delivery_city}" : '');
 
         try {

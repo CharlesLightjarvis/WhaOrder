@@ -18,11 +18,16 @@ use App\Repositories\WhatsAppSessions\EloquentWhatsAppSessionRepository;
 use App\Repositories\WhatsAppSessions\WhatsAppSessionRepository;
 use App\Services\Waha\WahaClient;
 use Carbon\CarbonImmutable;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use ImageKit\ImageKit;
+use League\Flysystem\Filesystem;
+use TaffoVelikoff\ImageKitAdapter\ImagekitAdapter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +58,29 @@ class AppServiceProvider extends ServiceProvider
         JsonResource::withoutWrapping();
 
         $this->configureDefaults();
+        $this->configureStorage();
+    }
+
+    /**
+     * Register the ImageKit Flysystem driver.
+     */
+    protected function configureStorage(): void
+    {
+        Storage::extend('imagekit', function ($app, $config) {
+            $adapter = new ImagekitAdapter(
+                new ImageKit(
+                    $config['public_key'],
+                    $config['private_key'],
+                    $config['endpoint_url'],
+                ),
+            );
+
+            return new FilesystemAdapter(
+                new Filesystem($adapter, $config),
+                $adapter,
+                $config,
+            );
+        });
     }
 
     /**

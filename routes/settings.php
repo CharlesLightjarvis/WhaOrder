@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\MerchantController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -10,6 +11,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('settings/merchant', [MerchantController::class, 'edit'])->name('merchant.edit');
+    Route::patch('settings/merchant', [MerchantController::class, 'update'])->name('merchant.update');
+    Route::get('settings/merchant/detect-location', [MerchantController::class, 'detectLocation'])->name('merchant.detect-location');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

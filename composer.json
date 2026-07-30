@@ -20,7 +20,8 @@
         "spatie/browsershot": "^5.4",
         "spatie/eloquent-sortable": "^5.0",
         "spatie/laravel-pdf": "^2.12",
-        "spatie/laravel-sluggable": "^4.0"
+        "spatie/laravel-sluggable": "^4.0",
+        "taffovelikoff/imagekit-adapter": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -118,6 +119,13 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-bbs6-q5q9-f3t4",
+                "PKSA-qxvb-2bpp-dnk6",
+                "PKSA-fy2t-3c5f-827y"
+            ]
         }
     },
     "minimum-stability": "stable",

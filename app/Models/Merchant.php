@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\Currency;
 use Database\Factories\MerchantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-#[Fillable(['name', 'slug', 'whatsapp_number', 'whatsapp_admin_number', 'currency', 'timezone'])]
+#[Fillable(['name', 'slug', 'whatsapp_number', 'whatsapp_admin_number', 'currency', 'timezone', 'delivery_fee'])]
 class Merchant extends Model
 {
     /** @use HasFactory<MerchantFactory> */
@@ -21,7 +20,7 @@ class Merchant extends Model
     protected function casts(): array
     {
         return [
-            'currency' => Currency::class,
+            'delivery_fee' => 'decimal:2',
         ];
     }
 

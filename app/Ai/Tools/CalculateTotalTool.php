@@ -106,7 +106,7 @@ class CalculateTotalTool implements Tool
         }
 
         $previousDraft = $this->conversation->draft_order ?? [];
-        $deliveryFee = 0.0;
+        $deliveryFee = (float) $this->merchant->delivery_fee;
 
         $draftOrder = [
             'items' => $resolvedItems,
@@ -145,7 +145,7 @@ class CalculateTotalTool implements Tool
      */
     private function summarize(array $draftOrder): string
     {
-        $currency = $this->merchant->currency->value;
+        $currency = $this->merchant->currency;
 
         $lines = collect($draftOrder['items'])->map(fn (array $item) => sprintf(
             '- %s%s x%d = %s %s',
@@ -199,7 +199,7 @@ class CalculateTotalTool implements Tool
                 ->description('Le nom du client, si donné pendant la commande. Laisse vide si déjà connu ou pas encore donné.')
                 ->nullable(),
             'adresse_livraison' => $schema->string()
-                ->description("Adresse détaillée (quartier, rue, repère) donnée par le client, SANS le nom de la ville : la ville va uniquement dans ville_livraison.")
+                ->description('Adresse détaillée (quartier, rue, repère) donnée par le client, SANS le nom de la ville : la ville va uniquement dans ville_livraison.')
                 ->nullable(),
             'ville_livraison' => $schema->string()
                 ->description('Ville de livraison. Obligatoire avant de finaliser la commande : demande-la explicitement si le client ne la précise pas de lui-même.')

@@ -52,7 +52,7 @@ class GetProductVariantsTool implements Tool
             return "Ce produit n'a pas de variante, il peut être ajouté directement au panier.";
         }
 
-        $currency = $this->merchant->currency->value;
+        $currency = $this->merchant->currency;
         $lines = [];
         $number = 1;
 

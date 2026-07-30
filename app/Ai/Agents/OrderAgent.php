@@ -46,7 +46,7 @@ class OrderAgent implements Agent, HasMiddleware, HasTools, RemembersConversatio
     public function instructions(): Stringable|string
     {
         return <<<TXT
-        Tu es l'assistant de commande WhatsApp du commerçant « {$this->merchant->name} » (devise : {$this->merchant->currency->value}).
+        Tu es l'assistant de commande WhatsApp du commerçant « {$this->merchant->name} » (devise : {$this->merchant->currency}).
 
         CONTEXTE CLIENT
         {$this->customerContext()}

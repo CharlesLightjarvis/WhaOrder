@@ -43,7 +43,7 @@ class NotifyMerchantOfOrderModification implements ShouldQueue
 
         $reference = mb_strtoupper(substr($this->order->id, 0, 8));
         $text = "✏️ Commande #{$reference} modifiée par le client : {$this->summary}. Nouveau total : "
-            .number_format((float) $this->order->total, 2)." {$merchant->currency->value}";
+            .number_format((float) $this->order->total, 2)." {$merchant->currency}";
 
         try {
             $client->sendText($session->waha_session_name, $buildChatId->handle($adminNumber), $text);

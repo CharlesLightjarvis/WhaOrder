@@ -56,7 +56,7 @@ class GetCustomerOrderStatusTool implements Tool
                 $delivery = $order->delivery;
 
                 $lines = [
-                    "Commande #{$reference} du {$order->created_at->translatedFormat('d/m/Y')} — {$order->total} {$this->merchant->currency->value}",
+                    "Commande #{$reference} du {$order->created_at->translatedFormat('d/m/Y')} — {$order->total} {$this->merchant->currency}",
                     "Statut paiement : {$order->payment_status->label()}",
                 ];
 

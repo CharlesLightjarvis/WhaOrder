@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\Currency;
 use App\Models\Merchant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,11 +18,12 @@ class MerchantFactory extends Factory
     public function definition(): array
     {
         $region = fake()->randomElement([
-            ['currency' => Currency::Xof, 'timezone' => 'Africa/Abidjan', 'phone_prefix' => '+225'],
-            ['currency' => Currency::Xaf, 'timezone' => 'Africa/Douala', 'phone_prefix' => '+237'],
-            ['currency' => Currency::Ngn, 'timezone' => 'Africa/Lagos', 'phone_prefix' => '+234'],
-            ['currency' => Currency::Ghs, 'timezone' => 'Africa/Accra', 'phone_prefix' => '+233'],
-            ['currency' => Currency::Eur, 'timezone' => 'Europe/Paris', 'phone_prefix' => '+33'],
+            ['currency' => 'XOF', 'timezone' => 'Africa/Abidjan', 'phone_prefix' => '+225'],
+            ['currency' => 'XAF', 'timezone' => 'Africa/Douala', 'phone_prefix' => '+237'],
+            ['currency' => 'NGN', 'timezone' => 'Africa/Lagos', 'phone_prefix' => '+234'],
+            ['currency' => 'GHS', 'timezone' => 'Africa/Accra', 'phone_prefix' => '+233'],
+            ['currency' => 'TND', 'timezone' => 'Africa/Tunis', 'phone_prefix' => '+216'],
+            ['currency' => 'EUR', 'timezone' => 'Europe/Paris', 'phone_prefix' => '+33'],
         ]);
 
         return [

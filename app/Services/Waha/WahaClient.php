@@ -126,6 +126,25 @@ class WahaClient
     }
 
     /**
+     * Get a contact's WhatsApp profile picture URL. Returns null if WAHA
+     * has none on file for this contact (e.g. no picture set, or privacy
+     * settings hide it) rather than failing the caller.
+     */
+    public function getProfilePicture(string $session, string $contactId): ?string
+    {
+        $response = $this->http()->get('/api/contacts/profile-picture', [
+            'session' => $session,
+            'contactId' => $contactId,
+        ]);
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        return $response->json('profilePictureURL');
+    }
+
+    /**
      * Resolve a WhatsApp @lid (Linked ID) to the contact's real phone
      * number, since some chats now route through a lid instead of a
      * phone-number-based chat id. Returns null if WAHA has no mapping.

@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Trash2Icon } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -49,7 +45,8 @@ export default function SessionCard({ session }: Props) {
     const [deleting, setDeleting] = useState(false);
 
     const isPending = PENDING_STATUSES.includes(session.status);
-    const justScanned = session.status === 'STARTING' && Boolean(session.qr_code);
+    const justScanned =
+        session.status === 'STARTING' && Boolean(session.qr_code);
 
     function handleDelete() {
         setDeleting(true);
@@ -81,8 +78,8 @@ export default function SessionCard({ session }: Props) {
                                 className="size-48 rounded-md border"
                             />
                             <p className="text-center text-sm text-muted-foreground">
-                                Ouvrez WhatsApp sur le téléphone à connecter
-                                → Appareils liés → Scanner ce code.
+                                Ouvrez WhatsApp sur le téléphone à connecter →
+                                Appareils liés → Scanner ce code.
                             </p>
                         </div>
                     )}
@@ -100,12 +97,36 @@ export default function SessionCard({ session }: Props) {
                     )}
 
                     {session.status === 'WORKING' && (
-                        <p className="text-sm">
-                            Numéro connecté :{' '}
-                            <span className="font-medium">
-                                {session.phone_number ?? '—'}
-                            </span>
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <Avatar className="size-10">
+                                {session.profile_picture_url && (
+                                    <AvatarImage
+                                        src={session.profile_picture_url}
+                                        alt={
+                                            session.profile_name ??
+                                            'Photo de profil'
+                                        }
+                                    />
+                                )}
+                                <AvatarFallback>
+                                    {session.profile_name
+                                        ? session.profile_name
+                                              .charAt(0)
+                                              .toUpperCase()
+                                        : '?'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                {session.profile_name && (
+                                    <p className="font-medium">
+                                        {session.profile_name}
+                                    </p>
+                                )}
+                                <p className="text-sm text-muted-foreground">
+                                    {session.phone_number ?? '—'}
+                                </p>
+                            </div>
+                        </div>
                     )}
 
                     {session.status === 'FAILED' && (
@@ -135,9 +156,9 @@ export default function SessionCard({ session }: Props) {
                         <DialogTitle>Déconnecter cette session</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir déconnecter{' '}
-                            <strong>"{session.label}"</strong> ? Le
-                            commerçant devra scanner un nouveau QR code pour
-                            reconnecter ce numéro.
+                            <strong>"{session.label}"</strong> ? Le commerçant
+                            devra scanner un nouveau QR code pour reconnecter ce
+                            numéro.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

@@ -122,7 +122,7 @@ class ModifyOrderTool implements Tool
 
         return $this->success(
             $updated,
-            "Article ajouté : *{$label}* x{$quantity}. Nouveau total : *{$updated->total} {$this->merchant->currency->value}*.",
+            "Article ajouté : *{$label}* x{$quantity}. Nouveau total : *{$updated->total} {$this->merchant->currency}*.",
             "ajout de {$label} x{$quantity}",
         );
     }
@@ -147,7 +147,7 @@ class ModifyOrderTool implements Tool
 
         return $this->success(
             $updated,
-            "Article retiré : *{$label}*. Nouveau total : *{$updated->total} {$this->merchant->currency->value}*.",
+            "Article retiré : *{$label}*. Nouveau total : *{$updated->total} {$this->merchant->currency}*.",
             "retrait de {$label}",
         );
     }
@@ -180,7 +180,7 @@ class ModifyOrderTool implements Tool
 
         return $this->success(
             $updated,
-            "Quantité mise à jour : *{$label}* x{$quantity}. Nouveau total : *{$updated->total} {$this->merchant->currency->value}*.",
+            "Quantité mise à jour : *{$label}* x{$quantity}. Nouveau total : *{$updated->total} {$this->merchant->currency}*.",
             "quantité de {$label} changée à {$quantity}",
         );
     }

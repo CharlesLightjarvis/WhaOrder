@@ -20,6 +20,8 @@ class WhatsAppSessionResource extends JsonResource
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'phone_number' => $this->phone_number,
+            'profile_name' => $this->profile_name,
+            'profile_picture_url' => $this->profile_picture_url,
             'qr_code' => $this->qr_code,
             'connected_at' => $this->connected_at?->toDateTimeString(),
             'last_active_at' => $this->last_active_at?->toDateTimeString(),

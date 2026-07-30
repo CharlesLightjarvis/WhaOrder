@@ -125,7 +125,7 @@ class SearchProductTool implements Tool
      */
     private function numberedList(Collection $products): string
     {
-        $currency = $this->merchant->currency->value;
+        $currency = $this->merchant->currency;
         $lines = [];
         $number = 1;
 
