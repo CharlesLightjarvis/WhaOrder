@@ -64,11 +64,14 @@ RUN apk add --no-cache \
 
 # PHP extensions (build deps removed after install to keep image lean)
 RUN apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
         libpng-dev libjpeg-turbo-dev freetype-dev \
         icu-dev libzip-dev oniguruma-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         bcmath exif gd intl mbstring pcntl pdo pdo_mysql opcache zip \
+    && pecl install redis-6.3.0 \
+    && docker-php-ext-enable redis \
     && apk del .build-deps \
     && rm -rf /var/cache/apk/*
 
