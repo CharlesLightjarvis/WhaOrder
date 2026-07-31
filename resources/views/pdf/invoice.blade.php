@@ -182,8 +182,8 @@
                         @endif
                     </td>
                     <td class="numeric">{{ $item->quantity }}</td>
-                    <td class="numeric">{{ number_format((float) $item->unit_price, 2) }} {{ $merchant->currency->value }}</td>
-                    <td class="numeric">{{ number_format((float) $item->line_total, 2) }} {{ $merchant->currency->value }}</td>
+                    <td class="numeric">{{ number_format((float) $item->unit_price, 2) }} {{ $merchant->currency }}</td>
+                    <td class="numeric">{{ number_format((float) $item->line_total, 2) }} {{ $merchant->currency }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -193,15 +193,15 @@
         <table>
             <tr>
                 <td class="label">Sous-total</td>
-                <td class="value">{{ number_format((float) $order->subtotal, 2) }} {{ $merchant->currency->value }}</td>
+                <td class="value">{{ number_format((float) $order->subtotal, 2) }} {{ $merchant->currency }}</td>
             </tr>
             <tr>
                 <td class="label">Livraison</td>
-                <td class="value">{{ number_format((float) $order->delivery_fee, 2) }} {{ $merchant->currency->value }}</td>
+                <td class="value">{{ number_format((float) $order->delivery_fee, 2) }} {{ $merchant->currency }}</td>
             </tr>
             <tr class="grand-total">
                 <td class="label">Total</td>
-                <td class="value">{{ number_format((float) $order->total, 2) }} {{ $merchant->currency->value }}</td>
+                <td class="value">{{ number_format((float) $order->total, 2) }} {{ $merchant->currency }}</td>
             </tr>
         </table>
     </div>
