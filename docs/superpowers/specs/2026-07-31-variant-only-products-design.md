@@ -5,7 +5,7 @@
 Permettre à un marchand de gérer deux formes de catalogue sans créer de données artificielles :
 
 - un produit simple porte directement son prix, son stock et ses images ;
-- un produit à variantes sert de fiche parente, tandis que chaque variante porte obligatoirement son prix et son stock, ainsi que ses propres images facultatives.
+- un produit à variantes sert de fiche parente, tandis que chaque variante porte obligatoirement son prix et son stock, ainsi que ses propres images facultatives. La fiche parente ne porte aucune image.
 
 Un parent à variantes n'est jamais vendable directement. Par exemple, « Menschen » regroupe « A1.1 », « A1.2 », etc. La variante choisie détermine toujours le prix, le stock et les photos envoyées au client.
 
@@ -14,7 +14,7 @@ Un parent à variantes n'est jamais vendable directement. Par exemple, « Mensch
 Les colonnes `products.price` et `products.stock` deviennent nullables.
 
 - Produit simple : `products.price` et `products.stock` sont non nuls ; aucune variante n'existe.
-- Produit à variantes : `products.price` et `products.stock` valent `NULL` ; au moins une variante existe.
+- Produit à variantes : `products.price` et `products.stock` valent `NULL` ; au moins une variante existe et aucune image n'est directement associée au parent.
 - Variante : `product_variants.price` et `product_variants.stock` sont non nuls.
 
 La présence de variantes détermine le mode du produit. Aucune colonne `type` supplémentaire n'est ajoutée.
@@ -35,10 +35,12 @@ Pour un produit à variantes :
 
 - au moins une variante est obligatoire ;
 - chaque variante exige un nom, un prix et un stock valides ;
-- les champs prix et stock parents sont ignorés puis enregistrés à `NULL` ;
+- les champs prix, stock et images parents sont désactivés dans le formulaire ;
+- les éventuelles valeurs de prix et stock parents sont ignorées puis enregistrées à `NULL` ;
+- les éventuelles images parentes existantes sont supprimées de la base et d'ImageKit ;
 - les variantes ne peuvent plus hériter d'un prix parent.
 
-Lors du passage de simple vers variantes, le marchand saisit les valeurs de toutes les variantes. Lors du passage de variantes vers simple, il saisit un nouveau prix et un nouveau stock parents ; les anciennes variantes sont supprimées selon le comportement actuel de mise à jour.
+Lors du passage de simple vers variantes, le marchand saisit les valeurs de toutes les variantes et les images parentes existantes sont supprimées définitivement. Lors du passage de variantes vers simple, il saisit un nouveau prix, un nouveau stock et, s'il le souhaite, de nouvelles images parentes ; les anciennes variantes et leurs images sont supprimées selon le comportement actuel de mise à jour.
 
 La validation est conditionnelle côté serveur. Le serveur normalise les données avant leur persistance afin qu'une requête modifiée manuellement ne puisse pas produire un état hybride.
 
@@ -46,15 +48,16 @@ La validation est conditionnelle côté serveur. Le serveur normalise les donné
 
 Le backend charge, pour chaque produit :
 
-- sa première image principale ;
-- à défaut, la première image disponible parmi ses variantes ;
+- sa première image principale pour un produit simple ;
+- la première image disponible parmi ses variantes pour un produit à variantes ;
 - le prix minimum et maximum des variantes ;
 - la somme du stock des variantes ;
 - le nombre de variantes.
 
 Le DataTable affiche :
 
-- Image : image principale, sinon première image de variante, sinon placeholder.
+- Image simple : première image principale, sinon placeholder.
+- Image à variantes : première image de variante, sinon placeholder.
 - Prix simple : prix du parent.
 - Prix à variantes identiques : prix unique.
 - Prix à variantes différents : fourchette `minimum – maximum`.
@@ -73,7 +76,7 @@ Tout flux qui calcule un prix ou vérifie un stock doit distinguer les deux mode
 - Le prix unitaire et le stock proviennent toujours de la variante sélectionnée.
 - La recherche produit présente la fourchette de prix et le stock total, puis invite à choisir une variante.
 - L'agent ne doit jamais utiliser une valeur par défaut `0` lorsque le parent a un prix ou un stock nul.
-- L'envoi de photos utilise les images de la variante choisie ; si une variante n'a pas d'image, il peut conserver le fallback actuel vers les images principales du produit.
+- L'envoi de photos utilise uniquement les images de la variante choisie. Une variante sans image ne dispose d'aucun fallback parent.
 
 Une tentative de commander un parent à variantes sans variante produit une erreur métier claire et récupérable par l'agent, afin qu'il demande le choix au client.
 
@@ -85,7 +88,7 @@ Les alertes d'un produit simple utilisent le stock parent. Pour un produit à va
 
 `ProductResource` expose `price` et `stock` comme valeurs nullables. Il ajoute les valeurs de présentation stables `has_variants`, `cover_image`, `price_min`, `price_max` et `stock_total`. Les mêmes noms et nullabilités sont déclarés dans les types TypeScript.
 
-Les pages d'édition continuent de recevoir toutes les images principales et toutes les images de variantes. Le fallback de couverture ne modifie ni ne duplique les associations d'images en base.
+Les pages d'édition reçoivent les images principales uniquement pour les produits simples et les images de variantes pour les produits à variantes. L'image de couverture calculée ne modifie ni ne duplique les associations d'images en base.
 
 ## Tests attendus
 
@@ -95,8 +98,10 @@ Les tests couvrent au minimum :
 - rejet d'un produit simple sans prix ou sans stock ;
 - création et modification d'un produit à variantes avec parent nul ;
 - rejet d'une variante sans prix ou sans stock ;
+- désactivation des champs prix, stock et images parents en mode variantes ;
+- suppression en base et sur ImageKit des images parentes lors du passage en mode variantes ;
 - migration d'une ancienne variante sans prix par héritage du prix parent ;
-- couverture de liste depuis une image principale puis depuis une image de variante ;
+- couverture de liste depuis une image principale pour un produit simple et depuis une image de variante pour un produit à variantes ;
 - prix unique et fourchette de prix dans la ressource ;
 - somme du stock des variantes ;
 - calcul, modification et finalisation d'une commande simple ;
