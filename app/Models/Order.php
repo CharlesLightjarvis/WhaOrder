@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * @property OrderStatus $status
+ * @property PaymentStatus $payment_status
+ * @property PaymentMethod|null $payment_method
+ */
 #[Fillable([
     'customer_id', 'conversation_id', 'status', 'payment_status', 'payment_method',
     'delivery_address_text', 'delivery_city', 'subtotal', 'delivery_fee', 'total',
@@ -36,26 +41,31 @@ class Order extends Model
         ];
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
+    /** @return BelongsTo<Conversation, $this> */
     public function conversation(): BelongsTo
     {
         return $this->belongsTo(Conversation::class);
     }
 
+    /** @return HasMany<OrderItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
+    /** @return HasMany<PaymentProof, $this> */
     public function paymentProofs(): HasMany
     {
         return $this->hasMany(PaymentProof::class);
     }
 
+    /** @return HasOne<Delivery, $this> */
     public function delivery(): HasOne
     {
         return $this->hasOne(Delivery::class);

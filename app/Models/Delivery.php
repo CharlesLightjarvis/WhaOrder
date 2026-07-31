@@ -9,7 +9,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property DeliveryStatus $status
+ * @property Carbon|null $scheduled_at
+ * @property Carbon|null $delivered_at
+ */
 #[Fillable(['order_id', 'status', 'address_text', 'city', 'scheduled_at', 'delivered_at'])]
 class Delivery extends Model
 {
@@ -25,6 +31,7 @@ class Delivery extends Model
         ];
     }
 
+    /** @return BelongsTo<Order, $this> */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);

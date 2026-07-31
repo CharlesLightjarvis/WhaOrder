@@ -119,13 +119,6 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        },
-        "audit": {
-            "ignore": [
-                "PKSA-bbs6-q5q9-f3t4",
-                "PKSA-qxvb-2bpp-dnk6",
-                "PKSA-fy2t-3c5f-827y"
-            ]
         }
     },
     "minimum-stability": "stable",

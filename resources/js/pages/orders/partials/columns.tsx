@@ -1,10 +1,10 @@
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { EyeIcon } from 'lucide-react';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import type { Order, OrderStatus, PaymentStatus } from '@/types/order';
 
 const orderStatusVariant: Record<
@@ -62,9 +62,7 @@ export const createColumns = (): ColumnDef<Order>[] => [
             <DataTableColumnHeader column={column} title="Paiement" />
         ),
         cell: ({ row }) => (
-            <Badge
-                variant={paymentStatusVariant[row.original.payment_status]}
-            >
+            <Badge variant={paymentStatusVariant[row.original.payment_status]}>
                 {row.original.payment_status_label}
             </Badge>
         ),

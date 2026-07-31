@@ -1,7 +1,4 @@
-import * as React from 'react';
 import {
-    type ColumnDef,
-    type ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFacetedRowModel,
@@ -9,17 +6,22 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    type SortingState,
     useReactTable,
-    type VisibilityState,
 } from '@tanstack/react-table';
+import type {
+    ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
+} from '@tanstack/react-table';
+import * as React from 'react';
 
 import { DataTablePagination } from './data-table-pagination';
-import {
-    DataTableToolbar,
-    type SearchFilterConfig,
-    type FacetedFilterConfig,
-    type ActionButtonConfig,
+import { DataTableToolbar } from './data-table-toolbar';
+import type {
+    SearchFilterConfig,
+    FacetedFilterConfig,
+    ActionButtonConfig,
 } from './data-table-toolbar';
 import {
     Table,
@@ -36,6 +38,7 @@ interface DataTableProps<TData, TValue> {
     searchFilter?: SearchFilterConfig;
     facetedFilters?: FacetedFilterConfig[];
     actionButton?: ActionButtonConfig;
+    enablePagination?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -44,6 +47,7 @@ export function DataTable<TData, TValue>({
     searchFilter,
     facetedFilters,
     actionButton,
+    enablePagination = true,
 }: DataTableProps<TData, TValue>) {
     const [rowSelection, setRowSelection] = React.useState({});
     const [columnVisibility, setColumnVisibility] =
@@ -83,16 +87,26 @@ export function DataTable<TData, TValue>({
         // OR logic: row passes if ANY of the specified columnIds matches
         globalFilterFn: (row, columnId, value) => {
             const ids = searchColumnIdsRef.current;
-            if (!value || ids.length === 0) return true;
-            if (!ids.includes(columnId)) return false;
+
+            if (!value || ids.length === 0) {
+                return true;
+            }
+
+            if (!ids.includes(columnId)) {
+                return false;
+            }
+
             const search = String(value).toLowerCase();
+
             return String(row.getValue(columnId) ?? '')
                 .toLowerCase()
                 .includes(search);
         },
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        getPaginationRowModel: enablePagination
+            ? getPaginationRowModel()
+            : undefined,
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
@@ -162,7 +176,7 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} />
+            {enablePagination && <DataTablePagination table={table} />}
         </div>
     );
 }

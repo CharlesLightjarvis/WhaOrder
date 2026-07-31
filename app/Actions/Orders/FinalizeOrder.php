@@ -19,6 +19,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Repositories\Customers\CustomerRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class FinalizeOrder
 {
@@ -61,30 +62,36 @@ class FinalizeOrder
                 ]);
 
                 if ($item['variant_id']) {
-                    ProductVariant::query()
+                    $updated = ProductVariant::query()
                         ->where('id', $item['variant_id'])
                         ->whereHas('product', fn ($query) => $query->where('merchant_id', $merchant->id))
+                        ->where('stock', '>=', $item['quantity'])
                         ->decrement('stock', $item['quantity']);
 
-                    $product = Product::query()->find($item['product_id']);
+                    $this->ensureStockWasReserved($updated);
+
+                    $product = Product::query()->find((string) $item['product_id']);
 
                     if ($product) {
                         $this->syncProductStock->handle($product);
                         $this->checkLowStock->handle($product);
                     }
 
-                    $variant = ProductVariant::query()->find($item['variant_id']);
+                    $variant = ProductVariant::query()->find((string) $item['variant_id']);
 
                     if ($variant) {
                         $this->checkLowStock->handleVariant($variant);
                     }
                 } else {
-                    Product::query()
+                    $updated = Product::query()
                         ->where('id', $item['product_id'])
                         ->where('merchant_id', $merchant->id)
+                        ->where('stock', '>=', $item['quantity'])
                         ->decrement('stock', $item['quantity']);
 
-                    $product = Product::query()->find($item['product_id']);
+                    $this->ensureStockWasReserved($updated);
+
+                    $product = Product::query()->find((string) $item['product_id']);
 
                     if ($product) {
                         $this->checkLowStock->handle($product);
@@ -120,5 +127,14 @@ class FinalizeOrder
 
             return $order;
         });
+    }
+
+    private function ensureStockWasReserved(int $updatedRows): void
+    {
+        if ($updatedRows === 0) {
+            throw ValidationException::withMessages([
+                'items' => __('Insufficient stock for one or more products.'),
+            ]);
+        }
     }
 }

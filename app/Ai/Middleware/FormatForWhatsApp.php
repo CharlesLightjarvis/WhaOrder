@@ -10,8 +10,10 @@ class FormatForWhatsApp
 {
     /**
      * Handle the incoming prompt.
+     *
+     * @param  Closure(AgentPrompt): AgentResponse  $next
      */
-    public function handle(AgentPrompt $prompt, Closure $next)
+    public function handle(AgentPrompt $prompt, Closure $next): AgentResponse
     {
         return $next($prompt)->then(function (AgentResponse $response) {
             $response->text = $this->toWhatsAppFormatting($response->text);

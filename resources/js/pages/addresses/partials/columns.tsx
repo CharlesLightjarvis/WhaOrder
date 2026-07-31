@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link, router } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { PencilIcon, Trash2Icon, MoreHorizontalIcon } from 'lucide-react';
+import { useState } from 'react';
+import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import type { Address } from '@/types/address';
 
 function RowActions({ address }: { address: Address }) {

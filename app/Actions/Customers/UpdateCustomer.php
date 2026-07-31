@@ -28,7 +28,7 @@ class UpdateCustomer
 
             foreach ($addressesData as $addressData) {
                 $address = isset($addressData['id'])
-                    ? $customer->addresses()->findOrFail($addressData['id'])
+                    ? $customer->addresses()->findOrFail((string) $addressData['id'])
                     : new Address;
 
                 unset($addressData['id']);

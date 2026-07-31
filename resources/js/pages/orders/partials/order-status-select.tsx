@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import {
     Select,
     SelectContent,
@@ -7,7 +8,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import { ORDER_STATUSES } from '@/types/order';
 import type { Order, OrderStatus } from '@/types/order';
 

@@ -3,10 +3,11 @@
 namespace App\Repositories\Orders;
 
 use App\Models\Order;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface OrderRepository
 {
+    /** @return LengthAwarePaginator<int, Order> */
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
     public function find(string $id): Order;

@@ -11,6 +11,9 @@ use Illuminate\Support\Str;
 class PruneProductImages
 {
     /**
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  HasMany<ProductImage, TDeclaringModel>  $images
      * @param  array<int, string>  $keepIds
      */
     public function handle(HasMany $images, array $keepIds): void

@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
+import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
-import ConversationList from './partials/conversation-list';
-import type { Paginated } from '@/types/pagination';
 import type { Conversation } from '@/types/conversation';
+import type { Paginated } from '@/types/pagination';
+import ConversationList from './partials/conversation-list';
 
 type Props = {
     conversations: Paginated<Conversation>;

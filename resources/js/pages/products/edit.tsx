@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Form, Head, usePage } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import { ImageUpload } from '@/components/image-upload';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -17,8 +15,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { PlusIcon, Trash2Icon } from 'lucide-react';
-import ProductController from '@/actions/App/Http/Controllers/ProductController';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import type { Category } from '@/types/category';
 import type { Product, ProductImage } from '@/types/product';
 
@@ -86,8 +86,8 @@ export default function ProductEdit() {
                         Modifier le produit
                     </h1>
                     <p className="text-muted-foreground">
-                        Modifiez les informations, les variantes et les
-                        images du produit.
+                        Modifiez les informations, les variantes et les images
+                        du produit.
                     </p>
                 </div>
 
@@ -132,9 +132,7 @@ export default function ProductEdit() {
                                         id="description"
                                         name="description"
                                         rows={4}
-                                        defaultValue={
-                                            product.description ?? ''
-                                        }
+                                        defaultValue={product.description ?? ''}
                                         placeholder="Décrivez le produit..."
                                         onChange={() =>
                                             clearErrors('description')
@@ -222,8 +220,8 @@ export default function ProductEdit() {
                                         )}
                                         {hasVariants ? (
                                             <p className="text-xs text-muted-foreground">
-                                                Calculé automatiquement à
-                                                partir du stock des variantes.
+                                                Calculé automatiquement à partir
+                                                du stock des variantes.
                                             </p>
                                         ) : (
                                             <InputError
@@ -233,7 +231,10 @@ export default function ProductEdit() {
                                     </div>
 
                                     <div className="sm:col-span-1 lg:col-span-2">
-                                        <div className="h-6" aria-hidden="true" />
+                                        <div
+                                            className="h-6"
+                                            aria-hidden="true"
+                                        />
                                         <div className="flex h-10 items-center gap-3">
                                             <Checkbox
                                                 id="is_active"
@@ -273,8 +274,8 @@ export default function ProductEdit() {
 
                                 {variants.length === 0 && (
                                     <p className="text-sm text-muted-foreground">
-                                        Aucune variante. Utile pour les
-                                        tailles, couleurs, etc.
+                                        Aucune variante. Utile pour les tailles,
+                                        couleurs, etc.
                                     </p>
                                 )}
 
@@ -388,9 +389,7 @@ export default function ProductEdit() {
 
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Spinner className="mr-2" />
-                                    )}
+                                    {processing && <Spinner className="mr-2" />}
                                     Enregistrer les modifications
                                 </Button>
                             </div>
@@ -404,6 +403,7 @@ export default function ProductEdit() {
 
 function ProductEditLayout({ children }: { children: React.ReactNode }) {
     const { product } = usePage<{ product: Product }>().props;
+
     return (
         <AppLayout
             breadcrumbs={[

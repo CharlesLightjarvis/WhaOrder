@@ -11,12 +11,12 @@ const questions = [
     {
         question: 'WhaOrder fonctionne-t-il pour plusieurs commerçants ?',
         reponse:
-            "Oui, WhaOrder est multi-tenant : chaque commerçant dispose de son propre espace, ses produits, son stock et ses clients, complètement séparés des autres.",
+            'Oui, WhaOrder est multi-tenant : chaque commerçant dispose de son propre espace, ses produits, son stock et ses clients, complètement séparés des autres.',
     },
     {
         question: 'Comment le stock est-il mis à jour ?',
         reponse:
-            'Dès qu\'une commande est confirmée, le stock du produit concerné est automatiquement décrémenté et reste synchronisé avec votre tableau de bord.',
+            "Dès qu'une commande est confirmée, le stock du produit concerné est automatiquement décrémenté et reste synchronisé avec votre tableau de bord.",
     },
     {
         question: 'Comment WhaOrder vérifie le paiement ?',
@@ -24,9 +24,9 @@ const questions = [
             "Le client choisit son mode de paiement (Mobile Money, cash à la livraison, etc.) directement dans la conversation, et la commande n'est confirmée qu'une fois le paiement validé.",
     },
     {
-        question: "Puis-je suivre mes commandes en dehors de WhatsApp ?",
+        question: 'Puis-je suivre mes commandes en dehors de WhatsApp ?',
         reponse:
-            'Oui, un tableau de bord vous permet de superviser vos commandes, votre stock et vos clients en un coup d\'œil, sans jamais quitter WhatsApp pour votre activité quotidienne.',
+            "Oui, un tableau de bord vous permet de superviser vos commandes, votre stock et vos clients en un coup d'œil, sans jamais quitter WhatsApp pour votre activité quotidienne.",
     },
     {
         question: 'Que se passe-t-il si un client relance plusieurs fois ?',
@@ -62,9 +62,8 @@ export default function FAQ() {
                     </h2>
 
                     <p className="mx-auto max-w-xl text-lg text-foreground/60">
-                        Retrouvez les réponses aux questions les plus
-                        fréquentes sur le fonctionnement de WhaOrder pour
-                        votre activité.
+                        Retrouvez les réponses aux questions les plus fréquentes
+                        sur le fonctionnement de WhaOrder pour votre activité.
                     </p>
                 </motion.div>
 

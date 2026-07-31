@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import { Form, Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import { PlusIcon, Trash2Icon } from 'lucide-react';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 
 type AddressDraft = {
     label: string;
@@ -134,8 +134,8 @@ export default function CustomerCreate() {
 
                                 {addresses.length === 0 && (
                                     <p className="text-sm text-muted-foreground">
-                                        Aucune adresse. Vous pouvez en
-                                        ajouter maintenant ou plus tard.
+                                        Aucune adresse. Vous pouvez en ajouter
+                                        maintenant ou plus tard.
                                     </p>
                                 )}
 
@@ -167,8 +167,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'label',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="Domicile, Bureau..."
@@ -187,8 +186,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'full_name',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -204,8 +202,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'phone',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -221,8 +218,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'city',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -238,8 +234,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'line1',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="Rue, quartier..."
@@ -256,8 +251,7 @@ export default function CustomerCreate() {
                                                             updateAddress(
                                                                 index,
                                                                 'line2',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -268,15 +262,12 @@ export default function CustomerCreate() {
                                                     </Label>
                                                     <Input
                                                         name={`addresses[${index}][country]`}
-                                                        value={
-                                                            address.country
-                                                        }
+                                                        value={address.country}
                                                         onChange={(e) =>
                                                             updateAddress(
                                                                 index,
                                                                 'country',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="CI, CM..."
@@ -334,9 +325,7 @@ export default function CustomerCreate() {
 
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Spinner className="mr-2" />
-                                    )}
+                                    {processing && <Spinner className="mr-2" />}
                                     Créer le client
                                 </Button>
                             </div>

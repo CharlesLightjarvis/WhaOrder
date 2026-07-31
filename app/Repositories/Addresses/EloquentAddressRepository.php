@@ -3,10 +3,11 @@
 namespace App\Repositories\Addresses;
 
 use App\Models\Address;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentAddressRepository implements AddressRepository
 {
+    /** @return LengthAwarePaginator<int, Address> */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Address::query()

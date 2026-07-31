@@ -19,6 +19,7 @@ trait BelongsToMerchant
         });
     }
 
+    /** @return BelongsTo<Merchant, $this> */
     public function merchant(): BelongsTo
     {
         return $this->belongsTo(Merchant::class);

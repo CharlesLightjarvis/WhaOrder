@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { Form, Head, usePage } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { useState } from 'react';
+import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -16,7 +13,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import AddressController from '@/actions/App/Http/Controllers/AddressController';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import type { Address, AddressCustomer } from '@/types/address';
 
 type PageProps = {
@@ -112,9 +112,7 @@ export default function AddressEdit() {
                                     <Input
                                         id="full_name"
                                         name="full_name"
-                                        defaultValue={
-                                            address.full_name ?? ''
-                                        }
+                                        defaultValue={address.full_name ?? ''}
                                         onChange={() =>
                                             clearErrors('full_name')
                                         }
@@ -168,18 +166,14 @@ export default function AddressEdit() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="country">
-                                        Pays (code)
-                                    </Label>
+                                    <Label htmlFor="country">Pays (code)</Label>
                                     <Input
                                         id="country"
                                         name="country"
                                         defaultValue={address.country ?? ''}
                                         placeholder="CI, CM..."
                                         maxLength={2}
-                                        onChange={() =>
-                                            clearErrors('country')
-                                        }
+                                        onChange={() => clearErrors('country')}
                                     />
                                     <InputError message={errors.country} />
                                 </div>
@@ -203,9 +197,7 @@ export default function AddressEdit() {
 
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Spinner className="mr-2" />
-                                    )}
+                                    {processing && <Spinner className="mr-2" />}
                                     Enregistrer les modifications
                                 </Button>
                             </div>

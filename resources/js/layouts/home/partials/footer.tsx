@@ -86,9 +86,9 @@ export function Footer() {
 
                         <p className="mb-4 max-w-md text-sm text-muted-foreground">
                             WhaOrder transforme vos conversations WhatsApp en
-                            commandes automatiquement : stock, prix,
-                            livraison et paiement. Vous restez dans WhatsApp,
-                            nous gérons le reste.
+                            commandes automatiquement : stock, prix, livraison
+                            et paiement. Vous restez dans WhatsApp, nous gérons
+                            le reste.
                         </p>
 
                         {/* Newsletter */}

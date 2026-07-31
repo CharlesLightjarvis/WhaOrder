@@ -18,14 +18,19 @@ use App\Repositories\WhatsAppSessions\EloquentWhatsAppSessionRepository;
 use App\Repositories\WhatsAppSessions\WhatsAppSessionRepository;
 use App\Services\Waha\WahaClient;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use ImageKit\ImageKit;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
 use League\Flysystem\Filesystem;
 use TaffoVelikoff\ImageKitAdapter\ImagekitAdapter;
 
@@ -59,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureDefaults();
         $this->configureStorage();
+        $this->configureRateLimiting();
     }
 
     /**
@@ -83,6 +89,12 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('whatsapp-webhooks', fn (Request $request) => Limit::perMinute(60)
+            ->by('whatsapp-webhook:'.$request->ip()));
+    }
+
     /**
      * Configure default behaviors for production-ready applications.
      */
@@ -94,14 +106,34 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
+        Password::defaults(
+            fn (): ?Password => app()->isProduction()
+                ? Password::min(12)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+                : null,
         );
+    }
+
+    /**
+     * Render a branded Inertia error page for HTTP errors in production.
+     * Left alone in local/testing so Laravel's debug error screens still show.
+     */
+    protected function configureErrorHandling(): void
+    {
+        if (! app()->isProduction()) {
+            return;
+        }
+
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+            if (in_array($response->statusCode(), [403, 404, 500, 503], true)) {
+                return $response->render('error-page', [
+                    'status' => $response->statusCode(),
+                ])->withSharedData();
+            }
+        });
     }
 }

@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { useMemo } from 'react';
+import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
-import type { Paginated } from '@/types/pagination';
 import type { Address } from '@/types/address';
-import AddressController from '@/actions/App/Http/Controllers/AddressController';
+import type { Paginated } from '@/types/pagination';
 import { createColumns } from './columns';
 
 type Props = {
@@ -28,8 +28,7 @@ export default function AddressList({ addresses }: Props) {
                 }}
                 actionButton={{
                     label: 'Créer une adresse',
-                    onClick: () =>
-                        router.visit(AddressController.create.url()),
+                    onClick: () => router.visit(AddressController.create.url()),
                 }}
             />
 

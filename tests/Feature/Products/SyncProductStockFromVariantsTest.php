@@ -3,12 +3,14 @@
 use App\Actions\Orders\FinalizeOrder;
 use App\Actions\Products\CreateProduct;
 use App\Actions\Products\UpdateProduct;
+use App\Enums\ConversationStatus;
 use App\Models\Category;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Merchant;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
@@ -76,7 +78,9 @@ it('resyncs product stock after an order decrements a variant', function () {
     $variant = $product->variants()->create(['name' => 'Taille L', 'stock' => 10]);
 
     $customer = Customer::factory()->for($this->merchant)->create();
-    $conversation = Conversation::factory()->for($this->merchant)->for($customer)->create();
+    $conversation = Conversation::factory()->for($this->merchant)->for($customer)->create([
+        'status' => ConversationStatus::Active,
+    ]);
 
     app(FinalizeOrder::class)->handle($this->merchant, $conversation, [
         'items' => [[
@@ -99,4 +103,34 @@ it('resyncs product stock after an order decrements a variant', function () {
 
     expect($variant->fresh()->stock)->toBe(7)
         ->and($product->fresh()->stock)->toBe(7);
+});
+
+it('refuses to finalize an order when product stock is insufficient', function () {
+    $product = Product::factory()->for($this->merchant)->create(['stock' => 1]);
+    $customer = Customer::factory()->for($this->merchant)->create();
+    $conversation = Conversation::factory()->for($this->merchant)->for($customer)->create([
+        'status' => ConversationStatus::Active,
+    ]);
+
+    expect(fn () => app(FinalizeOrder::class)->handle($this->merchant, $conversation, [
+        'items' => [[
+            'product_id' => $product->id,
+            'variant_id' => null,
+            'product_name_snapshot' => $product->name,
+            'variant_name_snapshot' => null,
+            'quantity' => 2,
+            'unit_price' => 1000,
+            'line_total' => 2000,
+        ]],
+        'subtotal' => 2000,
+        'delivery_fee' => 0,
+        'total' => 2000,
+        'customer_name' => 'Client Test',
+        'delivery_address_text' => 'Rue Test',
+        'delivery_city' => 'Abidjan',
+        'payment_method' => 'cash',
+    ]))->toThrow(ValidationException::class);
+
+    expect($product->fresh()->stock)->toBe(1)
+        ->and($conversation->fresh()->status)->not->toBe(ConversationStatus::Completed);
 });

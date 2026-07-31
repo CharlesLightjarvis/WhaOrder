@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Actions\WhatsApp\BuildWhatsAppChatId;
 use App\Actions\WhatsApp\ResolveMerchantWorkingSession;
+use App\Jobs\Middleware\UseMerchantContext;
 use App\Models\Conversation;
 use App\Services\Waha\WahaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,6 +21,12 @@ class SendAbandonedCartReminder implements ShouldQueue
     public function __construct(
         public readonly Conversation $conversation,
     ) {}
+
+    /** @return array<int, UseMerchantContext> */
+    public function middleware(): array
+    {
+        return [new UseMerchantContext($this->conversation->merchant_id)];
+    }
 
     public function handle(WahaClient $client, ResolveMerchantWorkingSession $resolveSession, BuildWhatsAppChatId $buildChatId): void
     {

@@ -76,6 +76,10 @@ class SearchProductTool implements Tool
         return $this->numberedList($products);
     }
 
+    /**
+     * @param  Builder<Product>  $query
+     * @return Collection<int, Product>
+     */
     private function searchByName(Builder $query, string $term): Collection
     {
         $exact = (clone $query)->where('name', 'like', "%{$term}%")->limit(5)->get();

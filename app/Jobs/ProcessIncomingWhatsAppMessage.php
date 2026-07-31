@@ -7,25 +7,32 @@ use App\Ai\Agents\OrderAgent;
 use App\Ai\Agents\SupportAgent;
 use App\Enums\ConversationStatus;
 use App\Enums\MessageIntent;
+use App\Jobs\Middleware\UseMerchantContext;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Merchant;
 use App\Models\WhatsAppSession;
 use App\Services\Waha\WahaClient;
+use App\Support\IncomingMessageDeduplicator;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Ai\Exceptions\AiException;
+use Laravel\Ai\Responses\StructuredAgentResponse;
+use Throwable;
 
 class ProcessIncomingWhatsAppMessage implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, SerializesModels;
+
+    public int $tries = 3;
+
+    public int $timeout = 120;
 
     /**
      * @param  array<string, mixed>  $message
@@ -35,37 +42,78 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         public readonly array $message,
     ) {}
 
-    public function handle(WahaClient $client): void
+    /** @return array<int, int> */
+    public function backoff(): array
     {
-        app()->instance('currentMerchantId', $this->whatsAppSession->merchant_id);
+        return [10, 30, 60];
+    }
 
+    /** @return array<int, UseMerchantContext> */
+    public function middleware(): array
+    {
+        return [new UseMerchantContext($this->whatsAppSession->merchant_id)];
+    }
+
+    public function handle(WahaClient $client, IncomingMessageDeduplicator $deduplicator): void
+    {
+        $messageId = is_string($this->message['id'] ?? null)
+            ? $this->message['id']
+            : null;
+
+        $scope = $this->whatsAppSession->waha_session_name;
+
+        if ($messageId !== null && ! $deduplicator->acquire($messageId, $scope)) {
+            Log::info('Skipping already-processed WhatsApp message.', ['messageId' => $messageId]);
+
+            return;
+        }
+
+        try {
+            $completed = $this->process($client);
+
+            if ($messageId !== null) {
+                $completed
+                    ? $deduplicator->complete($messageId, $scope)
+                    : $deduplicator->release($messageId, $scope);
+            }
+        } catch (Throwable $exception) {
+            if ($messageId !== null) {
+                $deduplicator->release($messageId, $scope);
+            }
+
+            throw $exception;
+        }
+    }
+
+    private function process(WahaClient $client): bool
+    {
         $chatId = (string) ($this->message['from'] ?? $this->message['chatId'] ?? '');
 
         if ($this->isGroupOrBroadcastChat($chatId)) {
             Log::info('Skipping WhatsApp message from a group or broadcast chat.', ['chatId' => $chatId]);
 
-            return;
+            return true;
         }
 
         if ($this->isHistoricalMessage()) {
-            Log::info('Skipping WhatsApp message received before the session connected.', ['message' => $this->message]);
+            Log::info('Skipping WhatsApp message received before the session connected.', [
+                'messageId' => $this->message['id'] ?? null,
+                'session' => $this->whatsAppSession->waha_session_name,
+            ]);
 
-            return;
-        }
-
-        if ($this->alreadyProcessed()) {
-            Log::info('Skipping already-processed WhatsApp message.', ['messageId' => $this->message['id'] ?? null]);
-
-            return;
+            return true;
         }
 
         $whatsappNumber = $this->resolvePhoneNumber($chatId, $client);
         $body = trim((string) ($this->message['body'] ?? ''));
 
         if ($whatsappNumber === '' || $body === '') {
-            Log::warning('Skipping WhatsApp message with missing sender or body.', ['message' => $this->message]);
+            Log::warning('Skipping WhatsApp message with missing sender or body.', [
+                'messageId' => $this->message['id'] ?? null,
+                'session' => $this->whatsAppSession->waha_session_name,
+            ]);
 
-            return;
+            return true;
         }
 
         $merchant = $this->whatsAppSession->merchant;
@@ -75,7 +123,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         Log::info('Processing WhatsApp message with the AI agent.', [
             'chatId' => $chatId,
             'conversationId' => $conversation->id,
-            'body' => $body,
+            'messageLength' => mb_strlen($body),
         ]);
 
         $agent = $this->resolveAgent($merchant, $conversation, $body, $client, $chatId);
@@ -87,6 +135,12 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             $agent->forUser($participant);
         }
 
+        $replyChatId = $this->message['from'] ?? $this->message['chatId'] ?? null;
+
+        if ($replyChatId) {
+            $client->startTyping($this->whatsAppSession->waha_session_name, $replyChatId);
+        }
+
         try {
             $response = $agent->prompt($body);
         } catch (RequestException|AiException $exception) {
@@ -96,12 +150,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'exception' => $exception::class,
                 'message' => $exception->getMessage(),
                 'status' => $exception instanceof RequestException ? $exception->response->status() : null,
-                'body' => $exception instanceof RequestException ? $exception->response->body() : null,
             ]);
 
-            $replyChatId = $this->message['from'] ?? $this->message['chatId'] ?? null;
-
             if ($replyChatId) {
+                $client->stopTyping($this->whatsAppSession->waha_session_name, $replyChatId);
                 $client->sendText(
                     $this->whatsAppSession->waha_session_name,
                     $replyChatId,
@@ -109,7 +161,7 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 );
             }
 
-            return;
+            return false;
         }
 
         $conversation->update([
@@ -118,7 +170,9 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
             'abandoned_reminder_sent_at' => null,
         ]);
 
-        $replyChatId = $this->message['from'] ?? $this->message['chatId'] ?? null;
+        if ($replyChatId) {
+            $client->stopTyping($this->whatsAppSession->waha_session_name, $replyChatId);
+        }
 
         if ($replyChatId && filled($response->text)) {
             $client->sendText($this->whatsAppSession->waha_session_name, $replyChatId, $response->text);
@@ -133,6 +187,8 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
                 'conversationId' => $conversation->id,
             ]);
         }
+
+        return true;
     }
 
     /**
@@ -162,6 +218,10 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
     {
         try {
             $result = (new ChiefAgent)->prompt($body);
+
+            if (! $result instanceof StructuredAgentResponse) {
+                return MessageIntent::Order;
+            }
 
             return MessageIntent::tryFrom($result['intent'] ?? '') ?? MessageIntent::Order;
         } catch (RequestException|AiException $exception) {
@@ -208,17 +268,6 @@ class ProcessIncomingWhatsAppMessage implements ShouldQueue
         }
 
         return CarbonImmutable::createFromTimestamp((int) $timestamp)->lt($this->whatsAppSession->connected_at);
-    }
-
-    private function alreadyProcessed(): bool
-    {
-        $messageId = $this->message['id'] ?? null;
-
-        if (! $messageId) {
-            return false;
-        }
-
-        return ! Cache::add("whatsapp-message-processed:{$messageId}", true, now()->addDay());
     }
 
     private function normalizeChatId(string $chatId): string

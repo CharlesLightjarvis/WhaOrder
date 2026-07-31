@@ -41,7 +41,7 @@ class UpdateProduct
                 unset($variantData['images'], $variantData['keep_image_ids']);
 
                 $variant = isset($variantData['id'])
-                    ? $product->variants()->findOrFail($variantData['id'])
+                    ? $product->variants()->findOrFail((string) $variantData['id'])
                     : new ProductVariant;
 
                 $variant->fill([

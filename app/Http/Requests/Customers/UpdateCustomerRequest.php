@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Customers;
 
+use App\Models\Customer;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,6 +24,9 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
+        $customer = $this->route('customer');
+        $customerId = $customer instanceof Customer ? $customer->id : $customer;
+
         return [
             'whatsapp_number' => [
                 'required',
@@ -38,7 +42,7 @@ class UpdateCustomerRequest extends FormRequest
             'addresses.*.id' => [
                 'nullable',
                 'uuid',
-                Rule::exists('addresses', 'id')->where('customer_id', $this->route('customer')?->id),
+                Rule::exists('addresses', 'id')->where('customer_id', $customerId),
             ],
             'addresses.*.label' => ['nullable', 'string', 'max:255'],
             'addresses.*.full_name' => ['nullable', 'string', 'max:255'],

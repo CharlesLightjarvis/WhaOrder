@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\Orders\GenerateOrderInvoicePdf;
+use App\Jobs\Middleware\UseMerchantContext;
 use App\Models\Order;
 use App\Services\Waha\WahaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,6 +20,12 @@ class GenerateAndSendInvoice implements ShouldQueue
         public readonly string $wahaSessionName,
         public readonly string $chatId,
     ) {}
+
+    /** @return array<int, UseMerchantContext> */
+    public function middleware(): array
+    {
+        return [new UseMerchantContext($this->order->merchant_id)];
+    }
 
     public function handle(GenerateOrderInvoicePdf $generateInvoice, WahaClient $client): void
     {

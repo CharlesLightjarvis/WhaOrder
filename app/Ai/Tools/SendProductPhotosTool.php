@@ -64,7 +64,7 @@ class SendProductPhotosTool implements Tool
 
         if ($variantId) {
             $variant = $product->variants->firstWhere('id', $variantId);
-            $images = $variant?->images ?? collect();
+            $images = $variant ? $variant->images : collect();
         }
 
         if ($images->isEmpty()) {

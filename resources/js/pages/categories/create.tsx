@@ -1,13 +1,13 @@
 import { Form, Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 
 export default function CategoryCreate() {
     return (
@@ -46,10 +46,7 @@ export default function CategoryCreate() {
                                 </div>
 
                                 <div className="flex justify-end">
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                    >
+                                    <Button type="submit" disabled={processing}>
                                         {processing && (
                                             <Spinner className="mr-2" />
                                         )}

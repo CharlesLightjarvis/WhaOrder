@@ -24,16 +24,19 @@ class ProductImage extends Model implements Sortable
         'sort_when_creating' => true,
     ];
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return BelongsTo<ProductVariant, $this> */
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
+    /** @return Builder<static> */
     public function buildSortQuery(): Builder
     {
         return static::query()

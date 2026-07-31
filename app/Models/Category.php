@@ -26,6 +26,7 @@ class Category extends Model
             ->extraScope(fn ($query) => $query->where('merchant_id', $this->merchant_id));
     }
 
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

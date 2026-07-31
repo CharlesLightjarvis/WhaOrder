@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import {
     MapPin,
     Phone,
@@ -13,8 +13,9 @@ import {
     Send,
     CheckCircle2,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 /* ── données ─────────────────────────────────────────────── */
 
@@ -133,6 +134,7 @@ export default function Contact() {
                 >
                     {quickCards.map((card) => {
                         const Icon = card.icon;
+
                         return (
                             <motion.div key={card.titre} variants={fadeUp}>
                                 <Card className="group h-full cursor-pointer border-border/40 bg-background/60 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-border/60 hover:shadow-lg dark:border-border/50 dark:bg-background/50">
@@ -336,6 +338,7 @@ export default function Contact() {
                                 <ul className="space-y-6">
                                     {infos.map((info) => {
                                         const Icon = info.icon;
+
                                         return (
                                             <li
                                                 key={info.label}

@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import OrderController from '@/actions/App/Http/Controllers/OrderController';
-import OrderList from './partials/order-list';
-import type { Paginated } from '@/types/pagination';
 import type { Order } from '@/types/order';
+import type { Paginated } from '@/types/pagination';
+import OrderList from './partials/order-list';
 
 type Props = {
     orders: Paginated<Order>;
@@ -23,8 +23,8 @@ export default function OrderIndex() {
                         Commandes
                     </h1>
                     <p className="text-muted-foreground">
-                        Suivez les commandes passées sur WhatsApp et gérez
-                        leur statut.
+                        Suivez les commandes passées sur WhatsApp et gérez leur
+                        statut.
                     </p>
                 </div>
 

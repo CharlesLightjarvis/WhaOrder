@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('paginates products with the tanstack pager without freezing it', function () {
+it('paginates products on the server without freezing the table', function () {
     $merchant = Merchant::factory()->create();
     $user = User::factory()->create(['merchant_id' => $merchant->id]);
     $category = Category::factory()->for($merchant)->create();
@@ -18,17 +18,14 @@ it('paginates products with the tanstack pager without freezing it', function ()
 
     $page = visit('/products');
     $page->assertNoJavaScriptErrors();
-    $page->assertSee('Page 1 of 4');
+    $page->assertSee('Page 1 / 3');
 
-    $page->click('Go to next page');
-    $page->assertSee('Page 2 of 4');
+    $page->click('Suivant');
+    $page->assertSee('Page 2 / 3');
 
-    $page->click('Go to next page');
-    $page->assertSee('Page 3 of 4');
+    $page->click('Suivant');
+    $page->assertSee('Page 3 / 3');
 
-    $page->click('Go to next page');
-    $page->assertSee('Page 4 of 4');
-
-    $page->click('Go to previous page');
-    $page->assertSee('Page 3 of 4');
+    $page->click('PrÃ©cÃ©dent');
+    $page->assertSee('Page 2 / 3');
 });

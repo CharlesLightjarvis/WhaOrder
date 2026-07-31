@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
 import { Head, usePage, usePoll } from '@inertiajs/react';
+import { useEffect } from 'react';
+import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
+import type { WhatsAppSession } from '@/types/whatsapp-session';
 import ConnectSessionDialog from './partials/connect-session-dialog';
 import EmptyState from './partials/empty-state';
 import SessionCard, { PENDING_STATUSES } from './partials/session-card';
-import type { WhatsAppSession } from '@/types/whatsapp-session';
 
 type Props = {
     sessions: WhatsAppSession[];
@@ -33,7 +33,7 @@ export default function WhatsAppSessionIndex() {
         }
 
         return stop;
-    }, [hasPendingSession]);
+    }, [hasPendingSession, start, stop]);
 
     return (
         <>

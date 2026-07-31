@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Products;
 
+use App\Models\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,6 +24,9 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product');
+        $productId = $product instanceof Product ? $product->id : $product;
+
         return [
             'category_id' => [
                 'nullable',
@@ -42,7 +46,7 @@ class UpdateProductRequest extends FormRequest
             'variants.*.id' => [
                 'nullable',
                 'uuid',
-                Rule::exists('product_variants', 'id')->where('product_id', $this->route('product')?->id),
+                Rule::exists('product_variants', 'id')->where('product_id', $productId),
             ],
             'variants.*.name' => ['required_with:variants', 'string', 'max:255'],
             'variants.*.price' => ['nullable', 'numeric', 'min:0'],

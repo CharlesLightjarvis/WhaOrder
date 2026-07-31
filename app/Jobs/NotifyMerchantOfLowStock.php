@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Actions\WhatsApp\BuildWhatsAppChatId;
 use App\Actions\WhatsApp\ResolveMerchantWorkingSession;
+use App\Jobs\Middleware\UseMerchantContext;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Waha\WahaClient;
@@ -22,6 +23,12 @@ class NotifyMerchantOfLowStock implements ShouldQueue
         public readonly Product $product,
         public readonly ?ProductVariant $variant = null,
     ) {}
+
+    /** @return array<int, UseMerchantContext> */
+    public function middleware(): array
+    {
+        return [new UseMerchantContext($this->product->merchant_id)];
+    }
 
     public function handle(WahaClient $client, ResolveMerchantWorkingSession $resolveSession, BuildWhatsAppChatId $buildChatId): void
     {
@@ -43,7 +50,7 @@ class NotifyMerchantOfLowStock implements ShouldQueue
         }
 
         $label = $this->product->name.($this->variant ? " ({$this->variant->name})" : '');
-        $stock = $this->variant?->stock ?? $this->product->stock;
+        $stock = $this->variant ? $this->variant->stock : $this->product->stock;
 
         $text = "⚠️ Stock faible : *{$label}* — plus que *{$stock}* en stock.";
 

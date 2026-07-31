@@ -1,16 +1,9 @@
-import * as React from 'react';
-import { type Column } from '@tanstack/react-table';
+import type { Column } from '@tanstack/react-table';
 import { Check, PlusCircle } from 'lucide-react';
+import * as React from 'react';
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import {
     Command,
     CommandEmpty,
@@ -18,8 +11,14 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-    CommandSeparator,
 } from '@/components/ui/command';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 interface DataTableFacetedFilterProps<TData, TValue> {
     column?: Column<TData, TValue>;
@@ -57,27 +56,32 @@ export function DataTableFacetedFilter<TData, TValue>({
 
     function toggle(value: string) {
         const next = new Set(selectedValues);
+
         if (next.has(value)) {
             next.delete(value);
         } else {
             next.add(value);
         }
-        applyFilter(next);
-    }
 
-    function clearAll() {
-        applyFilter(new Set());
+        applyFilter(next);
     }
 
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 border-dashed">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-dashed"
+                >
                     <PlusCircle />
                     {title}
                     {selectedValues.size > 0 && (
                         <>
-                            <Separator orientation="vertical" className="mx-2 h-4" />
+                            <Separator
+                                orientation="vertical"
+                                className="mx-2 h-4"
+                            />
                             <Badge
                                 variant="secondary"
                                 className="rounded-sm px-1 font-normal lg:hidden"
@@ -94,7 +98,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                                     </Badge>
                                 ) : (
                                     options
-                                        .filter((o) => selectedValues.has(o.value))
+                                        .filter((o) =>
+                                            selectedValues.has(o.value),
+                                        )
                                         .map((o) => (
                                             <Badge
                                                 variant="secondary"
@@ -117,7 +123,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                         <CommandEmpty>Aucun résultat.</CommandEmpty>
                         <CommandGroup>
                             {options.map((option) => {
-                                const isSelected = selectedValues.has(option.value);
+                                const isSelected = selectedValues.has(
+                                    option.value,
+                                );
+
                                 return (
                                     <CommandItem
                                         key={option.value}

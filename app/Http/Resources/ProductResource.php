@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Product */
 class ProductResource extends JsonResource
 {
     /**
@@ -41,8 +43,8 @@ class ProductResource extends JsonResource
                 'images' => $variant->relationLoaded('images') ? $variant->images->map(fn ($image) => [
                     'id' => $image->id,
                     'url' => $image->url,
-                ]) : [],
-            ])),
+                ])->all() : [],
+            ])->all()),
             'variants_count' => $this->whenCounted('variants'),
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),

@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
-import CustomerList from './partials/customer-list';
-import type { Paginated } from '@/types/pagination';
 import type { Customer } from '@/types/customer';
+import type { Paginated } from '@/types/pagination';
+import CustomerList from './partials/customer-list';
 
 type Props = {
     customers: Paginated<Customer>;

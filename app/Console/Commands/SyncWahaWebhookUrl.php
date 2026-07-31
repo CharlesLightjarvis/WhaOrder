@@ -6,6 +6,7 @@ use App\Models\WhatsAppSession;
 use App\Services\Waha\WahaClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use RuntimeException;
 
 class SyncWahaWebhookUrl extends Command
 {
@@ -52,10 +53,16 @@ class SyncWahaWebhookUrl extends Command
         $path = base_path('.env');
         $content = file_get_contents($path);
 
-        $content = preg_match('/^WAHA_WEBHOOK_URL=.*/m', $content)
+        if ($content === false) {
+            throw new RuntimeException("Unable to read the environment file at {$path}.");
+        }
+
+        $updatedContent = preg_match('/^WAHA_WEBHOOK_URL=.*/m', $content)
             ? preg_replace('/^WAHA_WEBHOOK_URL=.*/m', "WAHA_WEBHOOK_URL={$url}", $content)
             : $content."\nWAHA_WEBHOOK_URL={$url}\n";
 
-        file_put_contents($path, $content);
+        if ($updatedContent === null || file_put_contents($path, $updatedContent) === false) {
+            throw new RuntimeException("Unable to update the environment file at {$path}.");
+        }
     }
 }

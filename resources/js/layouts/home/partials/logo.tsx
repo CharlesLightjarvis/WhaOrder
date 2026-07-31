@@ -8,10 +8,7 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ className = '', style = {} }) => {
     return (
-        <div
-            className={`flex items-center gap-2 ${className}`}
-            style={style}
-        >
+        <div className={`flex items-center gap-2 ${className}`} style={style}>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <MessageCircle className="h-4.5 w-4.5" aria-hidden="true" />
             </span>

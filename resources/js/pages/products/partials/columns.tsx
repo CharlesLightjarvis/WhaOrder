@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link, router } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import {
     ImageIcon,
     PencilIcon,
@@ -9,6 +8,8 @@ import {
     EyeIcon,
     EyeOffIcon,
 } from 'lucide-react';
+import { useState } from 'react';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import type { Product } from '@/types/product';
 
 function RowActions({ product }: { product: Product }) {
@@ -107,8 +107,8 @@ function RowActions({ product }: { product: Product }) {
                         <DialogTitle>Supprimer le produit</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir supprimer{' '}
-                            <strong>"{product.name}"</strong> ? Cette action
-                            est irréversible.
+                            <strong>"{product.name}"</strong> ? Cette action est
+                            irréversible.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -144,6 +144,7 @@ export const createColumns = (): ColumnDef<Product>[] => [
         cell: ({ row }) => {
             const product = row.original;
             const image = product.images?.[0];
+
             return (
                 <div className="flex items-center gap-3">
                     {image ? (
@@ -223,7 +224,10 @@ export const createColumns = (): ColumnDef<Product>[] => [
                     Actif
                 </Badge>
             ) : (
-                <Badge variant="outline" className="bg-muted text-muted-foreground">
+                <Badge
+                    variant="outline"
+                    className="bg-muted text-muted-foreground"
+                >
                     Inactif
                 </Badge>
             ),

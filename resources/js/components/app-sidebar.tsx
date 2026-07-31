@@ -12,6 +12,13 @@ import {
     MessageCircle,
     Smartphone,
 } from 'lucide-react';
+import AddressController from '@/actions/App/Http/Controllers/AddressController';
+import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
+import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
+import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -26,13 +33,6 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import ProductController from '@/actions/App/Http/Controllers/ProductController';
-import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
-import AddressController from '@/actions/App/Http/Controllers/AddressController';
-import OrderController from '@/actions/App/Http/Controllers/OrderController';
-import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
-import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [

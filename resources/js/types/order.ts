@@ -1,9 +1,5 @@
 export type OrderStatus =
-    | 'pending'
-    | 'preparing'
-    | 'out_for_delivery'
-    | 'delivered'
-    | 'cancelled';
+    'pending' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled';
 
 export type PaymentStatus = 'unpaid' | 'claimed' | 'confirmed' | 'failed';
 
@@ -13,7 +9,8 @@ export type PaymentProofType = 'screenshot' | 'message';
 
 export type PaymentProofStatus = 'pending_review' | 'confirmed' | 'rejected';
 
-export type DeliveryStatus = 'pending' | 'out_for_delivery' | 'delivered' | 'failed';
+export type DeliveryStatus =
+    'pending' | 'out_for_delivery' | 'delivered' | 'failed';
 
 export type OrderItem = {
     id: string;

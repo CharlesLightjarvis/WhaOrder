@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'home/index')->name('home');
 
-Route::post('webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle'])->name('webhooks.whatsapp');
+Route::post('webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle'])
+    ->middleware('throttle:whatsapp-webhooks')
+    ->name('webhooks.whatsapp');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

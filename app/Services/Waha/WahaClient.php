@@ -125,6 +125,22 @@ class WahaClient
         ])->throw()->json();
     }
 
+    public function startTyping(string $session, string $chatId): void
+    {
+        $this->http()->post('/api/startTyping', [
+            'session' => $session,
+            'chatId' => $chatId,
+        ]);
+    }
+
+    public function stopTyping(string $session, string $chatId): void
+    {
+        $this->http()->post('/api/stopTyping', [
+            'session' => $session,
+            'chatId' => $chatId,
+        ]);
+    }
+
     /**
      * Get a contact's WhatsApp profile picture URL. Returns null if WAHA
      * has none on file for this contact (e.g. no picture set, or privacy
@@ -159,7 +175,9 @@ class WahaClient
 
         $phoneNumberJid = $response->json('pn');
 
-        return $phoneNumberJid ? str_replace('@c.us', '', $phoneNumberJid) : null;
+        return is_string($phoneNumberJid)
+            ? str_replace('@c.us', '', $phoneNumberJid)
+            : null;
     }
 
     private function http(): PendingRequest

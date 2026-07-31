@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link, router } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { PencilIcon, Trash2Icon, MoreHorizontalIcon } from 'lucide-react';
+import { useState } from 'react';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +20,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import type { Customer } from '@/types/customer';
 
 function RowActions({ customer }: { customer: Customer }) {

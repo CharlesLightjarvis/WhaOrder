@@ -31,36 +31,43 @@ class Merchant extends Model
             ->saveSlugsTo('slug');
     }
 
+    /** @return HasMany<User, $this> */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
+    /** @return HasMany<Category, $this> */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
 
+    /** @return HasMany<Customer, $this> */
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
     }
 
+    /** @return HasMany<Conversation, $this> */
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class);
     }
 
+    /** @return HasMany<Order, $this> */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
 
+    /** @return HasMany<WhatsAppSession, $this> */
     public function whatsAppSessions(): HasMany
     {
         return $this->hasMany(WhatsAppSession::class);

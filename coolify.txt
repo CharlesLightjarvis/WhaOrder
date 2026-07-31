@@ -1,0 +1,231 @@
+SECURISATION RESEAU COOLIFY - WHAORDER
+======================================
+
+Principe essentiel
+------------------
+
+- Port Exposes = port visible uniquement dans le réseau Docker : autorisé.
+- Port Mappings / Public Port = port publié sur l'adresse IP du VPS : à éviter.
+- Seuls les ports 80 et 443 du proxy Coolify doivent être publics pour l'application.
+
+
+1. APPLICATION LARAVEL
+----------------------
+
+Dans la ressource Application de Coolify :
+
+General > Domains :
+
+    https://app.tondomaine.com
+
+General > Port Exposes :
+
+    80
+
+General > Port Mappings :
+
+    Laisser complètement vide.
+
+Activer également :
+
+    Force HTTPS: Yes
+    Health Check: Enabled
+    Health Check Path: /up
+    Health Check Port: 80
+
+Le trafic suivra ce chemin :
+
+    Internet -> HTTPS 443 -> Traefik/Coolify -> Laravel port interne 80
+
+Ne jamais ajouter ces mappings :
+
+    8080:80
+    80:80
+
+
+2. MYSQL
+--------
+
+Dans la ressource MySQL :
+
+    Publicly Accessible: Disabled
+    Public Port: vide
+    Port Mapping: vide
+
+Utiliser uniquement les informations de connexion internes fournies par
+Coolify :
+
+    DB_CONNECTION=mysql
+    DB_HOST=<hote-interne-fourni-par-coolify>
+    DB_PORT=3306
+    DB_DATABASE=whaorder
+    DB_USERNAME=whaorder
+    DB_PASSWORD=<secret-fort>
+
+Ne jamais utiliser l'adresse IP publique du VPS comme DB_HOST.
+
+
+3. REDIS
+--------
+
+Dans la ressource Redis :
+
+    Publicly Accessible: Disabled
+    Public Port: vide
+    Port Mapping: vide
+
+Configuration Laravel :
+
+    REDIS_HOST=<hote-interne-redis-coolify>
+    REDIS_PORT=6379
+    REDIS_PASSWORD=<mot-de-passe-redis>
+
+    CACHE_STORE=redis
+    SESSION_DRIVER=redis
+    QUEUE_CONNECTION=redis
+
+Ne jamais ouvrir le port 6379 publiquement.
+
+
+4. WAHA
+-------
+
+Dans la ressource WAHA :
+
+    Domain: vide
+    Public Port: vide
+    Port Mapping: vide
+    Port Exposes: 3000
+
+Configuration Laravel :
+
+    WAHA_URL=http://<hote-interne-waha>:3000
+    WAHA_API_KEY=<secret-fort>
+    WAHA_WEBHOOK_HMAC_KEY=<autre-secret-long-et-aleatoire>
+    WAHA_WEBHOOK_URL=https://app.tondomaine.com
+
+Différence importante :
+
+- WAHA_URL est l'adresse privée utilisée par Laravel pour appeler WAHA.
+- WAHA_WEBHOOK_URL est l'adresse HTTPS publique utilisée par WAHA pour
+  appeler Laravel.
+
+Le dashboard et l'API WAHA ne doivent pas recevoir de domaine public.
+
+
+5. RESEAU COOLIFY
+-----------------
+
+Placer Laravel, WAHA, MySQL et Redis dans :
+
+    Le même serveur
+    Le même projet
+    Le même environnement production
+    La même destination Docker
+
+Si les ressources sont séparées et que leurs URL internes ne fonctionnent
+pas, activer dans les options avancées :
+
+    Connect to Predefined Network
+
+Coolify peut ajouter l'UUID de la ressource à son nom Docker. Toujours copier
+exactement l'hôte ou l'URL interne affiché par Coolify.
+
+
+6. PARE-FEU DU FOURNISSEUR VPS
+------------------------------
+
+Autoriser uniquement :
+
+    Port 22  / TCP : depuis mon IP si possible (SSH)
+    Port 80  / TCP : Internet (redirection HTTPS et certificats)
+    Port 443 / TCP : Internet (application HTTPS)
+
+Refuser publiquement :
+
+    Port 3000 : WAHA
+    Port 3306 : MySQL
+    Port 6379 : Redis
+    Port 8080 : éventuel mapping Laravel
+
+Si le dashboard Coolify est encore utilisé avec IP_DU_VPS:8000, conserver
+temporairement les ports nécessaires. Après avoir configuré un domaine HTTPS
+pour Coolify, fermer si possible les ports publics 8000, 6001 et 6002.
+
+Privilégier le pare-feu du fournisseur VPS. Docker peut contourner certaines
+règles UFW classiques à cause de ses règles iptables/NAT.
+
+
+7. VERIFICATION SUR LE VPS
+--------------------------
+
+Afficher les ports des conteneurs :
+
+    docker ps --format 'table {{.Names}}\t{{.Ports}}'
+
+Résultat sécurisé attendu :
+
+    whaorder    80/tcp
+    waha        3000/tcp
+    mysql       3306/tcp
+    redis       6379/tcp
+
+Résultat dangereux :
+
+    0.0.0.0:3000->3000/tcp
+    0.0.0.0:3306->3306/tcp
+    0.0.0.0:6379->6379/tcp
+    0.0.0.0:8080->80/tcp
+
+Tout préfixe "0.0.0.0:PORT->" ou "[::]:PORT->" indique généralement que le
+port est publié sur le VPS.
+
+Depuis un autre ordinateur, tester :
+
+    nc -vz IP_DU_VPS 3000
+    nc -vz IP_DU_VPS 3306
+    nc -vz IP_DU_VPS 6379
+
+Ces trois tests doivent échouer ou expirer. Seuls les ports publics 80 et 443
+doivent répondre.
+
+
+8. VARIABLES DE PRODUCTION MINIMALES
+------------------------------------
+
+    APP_ENV=production
+    APP_DEBUG=false
+    APP_URL=https://app.tondomaine.com
+
+    SESSION_SECURE_COOKIE=true
+    SESSION_ENCRYPT=true
+    SESSION_SAME_SITE=lax
+
+    LOG_CHANNEL=stderr
+    LOG_LEVEL=warning
+
+    CACHE_STORE=redis
+    SESSION_DRIVER=redis
+    QUEUE_CONNECTION=redis
+    QUEUE_AFTER_COMMIT=true
+
+
+CHECKLIST AVANT OUVERTURE
+-------------------------
+
+[ ] Domaine Laravel configuré en HTTPS dans Coolify
+[ ] Force HTTPS activé
+[ ] Port Exposes Laravel = 80
+[ ] Port Mappings Laravel vide
+[ ] MySQL non accessible publiquement
+[ ] Redis non accessible publiquement
+[ ] WAHA sans domaine et sans port public
+[ ] Laravel utilise les URL internes MySQL, Redis et WAHA
+[ ] Healthcheck /up activé
+[ ] APP_DEBUG=false
+[ ] SESSION_SECURE_COOKIE=true
+[ ] Secret WAHA API configuré
+[ ] Secret HMAC WAHA distinct et configuré
+[ ] Pare-feu fournisseur limité aux ports nécessaires
+[ ] Vérification docker ps effectuée
+[ ] Tests externes des ports 3000, 3306 et 6379 en échec

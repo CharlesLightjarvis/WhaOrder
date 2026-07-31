@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\WhatsApp\BuildWhatsAppChatId;
+use App\Jobs\Middleware\UseMerchantContext;
 use App\Models\Order;
 use App\Services\Waha\WahaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,6 +21,12 @@ class NotifyMerchantOfNewOrder implements ShouldQueue
         public readonly Order $order,
         public readonly string $wahaSessionName,
     ) {}
+
+    /** @return array<int, UseMerchantContext> */
+    public function middleware(): array
+    {
+        return [new UseMerchantContext($this->order->merchant_id)];
+    }
 
     public function handle(WahaClient $client, BuildWhatsAppChatId $buildChatId): void
     {

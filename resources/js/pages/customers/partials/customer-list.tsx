@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { useMemo } from 'react';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
-import type { Paginated } from '@/types/pagination';
 import type { Customer } from '@/types/customer';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
+import type { Paginated } from '@/types/pagination';
 import { createColumns } from './columns';
 
 type Props = {

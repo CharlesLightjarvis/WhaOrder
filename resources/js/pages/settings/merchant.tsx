@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import { Form, Head, useHttp, usePage } from '@inertiajs/react';
 import { LocateFixedIcon } from 'lucide-react';
+import { useState } from 'react';
+import MerchantController from '@/actions/App/Http/Controllers/Settings/MerchantController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
-import MerchantController from '@/actions/App/Http/Controllers/Settings/MerchantController';
 import { edit as editMerchant } from '@/routes/merchant';
 import { TIMEZONES } from '@/types/merchant';
 import type { Merchant } from '@/types/merchant';

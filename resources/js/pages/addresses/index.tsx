@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
+import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import AddressController from '@/actions/App/Http/Controllers/AddressController';
-import AddressList from './partials/address-list';
-import type { Paginated } from '@/types/pagination';
 import type { Address } from '@/types/address';
+import type { Paginated } from '@/types/pagination';
+import AddressList from './partials/address-list';
 
 type Props = {
     addresses: Paginated<Address>;

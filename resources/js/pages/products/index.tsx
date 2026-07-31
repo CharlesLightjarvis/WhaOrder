@@ -1,12 +1,13 @@
 import { Head, usePage } from '@inertiajs/react';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import ProductController from '@/actions/App/Http/Controllers/ProductController';
-import ProductList from './partials/product-list';
+import type { Paginated } from '@/types/pagination';
 import type { Product } from '@/types/product';
+import ProductList from './partials/product-list';
 
 type Props = {
-    products: Product[];
+    products: Paginated<Product>;
 };
 
 export default function ProductIndex() {

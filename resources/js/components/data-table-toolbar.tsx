@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
-import { type Table } from '@tanstack/react-table';
+import type { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
+import { useState, useCallback } from 'react';
 import type React from 'react';
 
-import { DataTableFacetedFilter } from './data-table-faceted-filter';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { DataTableFacetedFilter } from './data-table-faceted-filter';
 import { DataTableViewOptions } from './data-table-view-options';
 
 export interface FacetedFilterConfig {
@@ -46,12 +46,17 @@ export function DataTableToolbar<TData>({
     'use no memo';
 
     const [searchValue, setSearchValue] = useState('');
-    const [filterCounts, setFilterCounts] = useState<Record<string, number>>({});
+    const [filterCounts, setFilterCounts] = useState<Record<string, number>>(
+        {},
+    );
     const [filterResetKey, setFilterResetKey] = useState(0);
 
-    const handleSelectionChange = useCallback((columnId: string, count: number) => {
-        setFilterCounts((prev) => ({ ...prev, [columnId]: count }));
-    }, []);
+    const handleSelectionChange = useCallback(
+        (columnId: string, count: number) => {
+            setFilterCounts((prev) => ({ ...prev, [columnId]: count }));
+        },
+        [],
+    );
 
     const hasActiveFilters = Object.values(filterCounts).some((c) => c > 0);
     const hasSearch = searchValue !== '';
@@ -85,7 +90,11 @@ export function DataTableToolbar<TData>({
                 )}
                 {facetedFilters.map((filter) => {
                     const column = table.getColumn(filter.columnId);
-                    if (!column) return null;
+
+                    if (!column) {
+                        return null;
+                    }
+
                     return (
                         <DataTableFacetedFilter
                             key={`${filter.columnId}-${filterResetKey}`}
@@ -99,13 +108,21 @@ export function DataTableToolbar<TData>({
                     );
                 })}
                 {hasSearch && (
-                    <Button variant="ghost" size="sm" onClick={handleResetSearch}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetSearch}
+                    >
                         Réinitialiser
                         <X />
                     </Button>
                 )}
                 {hasActiveFilters && (
-                    <Button variant="ghost" size="sm" onClick={handleResetFilters}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetFilters}
+                    >
                         Effacer les filtres
                         <X />
                     </Button>

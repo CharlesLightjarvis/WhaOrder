@@ -10,6 +10,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ModifyOrder
 {
@@ -21,7 +22,9 @@ class ModifyOrder
     public function addItem(Order $order, Product $product, ?ProductVariant $variant, int $quantity): Order
     {
         return DB::transaction(function () use ($order, $product, $variant, $quantity) {
-            $unitPrice = (float) ($variant?->price ?? $product->price);
+            $unitPrice = (float) ($variant !== null && $variant->price !== null
+                ? $variant->price
+                : $product->price);
 
             OrderItem::query()->create([
                 'order_id' => $order->id,
@@ -97,14 +100,36 @@ class ModifyOrder
     private function decrementStock(Product $product, ?ProductVariant $variant, int $quantity): void
     {
         if ($variant) {
-            $variant->decrement('stock', $quantity);
+            $updated = ProductVariant::query()
+                ->whereKey($variant->id)
+                ->where('product_id', $product->id)
+                ->where('stock', '>=', $quantity)
+                ->decrement('stock', $quantity);
+
+            $this->ensureStockWasReserved($updated);
+            $variant->refresh();
             $this->checkLowStock->handleVariant($variant);
         } else {
-            $product->decrement('stock', $quantity);
+            $updated = Product::query()
+                ->whereKey($product->id)
+                ->where('stock', '>=', $quantity)
+                ->decrement('stock', $quantity);
+
+            $this->ensureStockWasReserved($updated);
+            $product->refresh();
         }
 
         $this->syncProductStock->handle($product);
         $this->checkLowStock->handle($product);
+    }
+
+    private function ensureStockWasReserved(int $updatedRows): void
+    {
+        if ($updatedRows === 0) {
+            throw ValidationException::withMessages([
+                'quantity' => __('Insufficient stock for this product.'),
+            ]);
+        }
     }
 
     private function incrementStock(Product $product, ?ProductVariant $variant, int $quantity): void

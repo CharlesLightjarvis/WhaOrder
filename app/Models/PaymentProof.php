@@ -11,7 +11,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property PaymentProofType $type
+ * @property PaymentProofStatus $status
+ * @property Carbon|null $reviewed_at
+ */
 #[Fillable(['order_id', 'type', 'image_url', 'raw_message', 'status', 'reviewed_by', 'reviewed_at'])]
 class PaymentProof extends Model
 {
@@ -27,11 +33,13 @@ class PaymentProof extends Model
         ];
     }
 
+    /** @return BelongsTo<Order, $this> */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function reviewedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');

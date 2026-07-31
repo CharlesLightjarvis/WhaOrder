@@ -3,10 +3,11 @@
 namespace App\Repositories\Addresses;
 
 use App\Models\Address;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface AddressRepository
 {
+    /** @return LengthAwarePaginator<int, Address> */
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
     public function find(string $id): Address;

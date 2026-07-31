@@ -156,3 +156,36 @@ alert pour les stocks
 
 
 le client peut avoir plusieurs adresses
+
+
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://app.tondomaine.com
+
+LOG_CHANNEL=stderr
+LOG_LEVEL=warning
+
+DB_CONNECTION=mysql
+DB_HOST=<nom-interne-coolify-mysql>
+DB_PORT=3306
+DB_DATABASE=whaorder
+DB_USERNAME=whaorder
+DB_PASSWORD=<secret>
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=<nom-interne-coolify-redis>
+REDIS_PORT=6379
+REDIS_PASSWORD=<secret>
+
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+QUEUE_AFTER_COMMIT=true
+
+SESSION_SECURE_COOKIE=true
+SESSION_ENCRYPT=true
+
+WAHA_BASE_URL=http://<nom-interne-waha>:3000
+WAHA_API_KEY=<secret>
+WAHA_WEBHOOK_URL=https://app.tondomaine.com
+WAHA_WEBHOOK_HMAC_KEY=<secret-aleatoire-long>

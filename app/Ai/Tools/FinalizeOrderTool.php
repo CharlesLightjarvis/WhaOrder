@@ -75,15 +75,17 @@ class FinalizeOrderTool implements Tool
     private function checkInsufficientStock(array $item): ?string
     {
         if ($item['variant_id']) {
-            $stock = ProductVariant::query()
+            $variant = ProductVariant::query()
                 ->where('id', $item['variant_id'])
                 ->whereHas('product', fn ($query) => $query->where('merchant_id', $this->merchant->id))
-                ->first()?->stock ?? 0;
+                ->first();
+            $stock = $variant ? $variant->stock : 0;
         } else {
-            $stock = Product::query()
+            $product = Product::query()
                 ->where('id', $item['product_id'])
                 ->where('merchant_id', $this->merchant->id)
-                ->first()?->stock ?? 0;
+                ->first();
+            $stock = $product ? $product->stock : 0;
         }
 
         if ($stock < $item['quantity']) {
@@ -105,7 +107,7 @@ class FinalizeOrderTool implements Tool
             $missing[] = 'les articles';
         }
 
-        if (empty($draftOrder['customer_name'] ?? null) && empty($this->conversation->customer?->name)) {
+        if (empty($draftOrder['customer_name'] ?? null) && empty($this->conversation->customer->name)) {
             $missing[] = 'le nom du client';
         }
 

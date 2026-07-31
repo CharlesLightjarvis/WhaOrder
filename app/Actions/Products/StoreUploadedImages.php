@@ -7,6 +7,8 @@ use App\Models\ProductVariant;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Throwable;
 
 class StoreUploadedImages
 {
@@ -15,19 +17,32 @@ class StoreUploadedImages
      */
     public function handle(Product $product, array $files, ?ProductVariant $variant = null): void
     {
-        DB::transaction(function () use ($product, $files, $variant): void {
-            $folder = "whaorder/images/{$product->merchant->slug}/products";
+        $uploadedPaths = [];
+        $folder = "whaorder/images/{$product->merchant->slug}/products";
 
+        try {
             foreach ($files as $file) {
-                $path = $folder.'/'.$file->getClientOriginalName();
+                $extension = mb_strtolower($file->getClientOriginalExtension());
+                $path = $folder.'/'.Str::uuid().($extension !== '' ? ".{$extension}" : '');
 
-                Storage::disk('imagekit')->put($path, $file->get());
-
-                $product->images()->create([
-                    'url' => rtrim((string) config('filesystems.disks.imagekit.endpoint_url'), '/').'/'.$path,
-                    'variant_id' => $variant?->id,
-                ]);
+                Storage::disk('imagekit')->put($path, $file->getContent());
+                $uploadedPaths[] = $path;
             }
-        });
+
+            DB::transaction(function () use ($product, $variant, $uploadedPaths): void {
+                foreach ($uploadedPaths as $path) {
+                    $product->images()->create([
+                        'url' => rtrim((string) config('filesystems.disks.imagekit.endpoint_url'), '/').'/'.$path,
+                        'variant_id' => $variant?->id,
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            foreach ($uploadedPaths as $uploadedPath) {
+                Storage::disk('imagekit')->delete($uploadedPath);
+            }
+
+            throw $exception;
+        }
     }
 }

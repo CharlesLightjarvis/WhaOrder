@@ -13,7 +13,7 @@ const steps = [
         icon: MessageCircle,
         title: 'Le client écrit sur WhatsApp',
         description:
-            'Il pose une question, demande un prix ou passe commande, comme d\'habitude.',
+            "Il pose une question, demande un prix ou passe commande, comme d'habitude.",
     },
     {
         icon: PackageSearch,
@@ -64,8 +64,8 @@ export function HowItWorks() {
 
                     <p className="mb-10 max-w-lg text-lg text-foreground/60">
                         WhaOrder observe la conversation et transforme chaque
-                        échange en commande structurée. Le tableau de bord
-                        n'est utilisé que pour superviser.
+                        échange en commande structurée. Le tableau de bord n'est
+                        utilisé que pour superviser.
                     </p>
 
                     <div className="flex flex-col gap-6">

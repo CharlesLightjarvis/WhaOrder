@@ -1,10 +1,10 @@
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { EyeIcon } from 'lucide-react';
+import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
 import type { Conversation, ConversationStatus } from '@/types/conversation';
 
 const statusVariant: Record<

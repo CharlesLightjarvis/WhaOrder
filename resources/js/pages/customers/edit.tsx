@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import { Form, Head, usePage } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import { PlusIcon, Trash2Icon } from 'lucide-react';
-import CustomerController from '@/actions/App/Http/Controllers/CustomerController';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import type { Customer } from '@/types/customer';
 
 type AddressDraft = {
@@ -81,7 +81,9 @@ export default function CustomerEdit() {
 
     return (
         <>
-            <Head title={`Modifier — ${customer.name ?? customer.whatsapp_number}`} />
+            <Head
+                title={`Modifier — ${customer.name ?? customer.whatsapp_number}`}
+            />
 
             <div className="container mx-auto space-y-6 p-4">
                 <div className="flex flex-col space-y-2">
@@ -110,9 +112,7 @@ export default function CustomerEdit() {
                                         id="whatsapp_number"
                                         name="whatsapp_number"
                                         autoFocus
-                                        defaultValue={
-                                            customer.whatsapp_number
-                                        }
+                                        defaultValue={customer.whatsapp_number}
                                         placeholder="+225 07 00 00 00 00"
                                         onChange={() =>
                                             clearErrors('whatsapp_number')
@@ -160,8 +160,8 @@ export default function CustomerEdit() {
 
                                 {addresses.length === 0 && (
                                     <p className="text-sm text-muted-foreground">
-                                        Aucune adresse. Vous pouvez en
-                                        ajouter maintenant ou plus tard.
+                                        Aucune adresse. Vous pouvez en ajouter
+                                        maintenant ou plus tard.
                                     </p>
                                 )}
 
@@ -200,8 +200,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'label',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="Domicile, Bureau..."
@@ -220,8 +219,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'full_name',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -237,8 +235,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'phone',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -254,8 +251,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'city',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -271,8 +267,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'line1',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="Rue, quartier..."
@@ -289,8 +284,7 @@ export default function CustomerEdit() {
                                                             updateAddress(
                                                                 index,
                                                                 'line2',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                     />
@@ -301,15 +295,12 @@ export default function CustomerEdit() {
                                                     </Label>
                                                     <Input
                                                         name={`addresses[${index}][country]`}
-                                                        value={
-                                                            address.country
-                                                        }
+                                                        value={address.country}
                                                         onChange={(e) =>
                                                             updateAddress(
                                                                 index,
                                                                 'country',
-                                                                e.target
-                                                                    .value,
+                                                                e.target.value,
                                                             )
                                                         }
                                                         placeholder="CI, CM..."
@@ -367,9 +358,7 @@ export default function CustomerEdit() {
 
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Spinner className="mr-2" />
-                                    )}
+                                    {processing && <Spinner className="mr-2" />}
                                     Enregistrer les modifications
                                 </Button>
                             </div>
@@ -383,6 +372,7 @@ export default function CustomerEdit() {
 
 function CustomerEditLayout({ children }: { children: React.ReactNode }) {
     const { customer } = usePage<PageProps>().props;
+
     return (
         <AppLayout
             breadcrumbs={[

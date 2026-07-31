@@ -1,16 +1,11 @@
 import { Head, usePage } from '@inertiajs/react';
+import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import { Badge } from '@/components/ui/badge';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import ConversationController from '@/actions/App/Http/Controllers/ConversationController';
-import MessageBubble from './partials/message-bubble';
 import type { Conversation, ConversationMessage } from '@/types/conversation';
+import MessageBubble from './partials/message-bubble';
 
 type Props = {
     conversation: Conversation;
@@ -39,49 +34,26 @@ export default function ConversationShow() {
                     <Badge>{conversation.status_label}</Badge>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Fil de discussion</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex max-h-[600px] flex-col gap-2 overflow-y-auto rounded-lg bg-[#E5DDD5] p-4 dark:bg-neutral-800">
-                                {messages.length === 0 && (
-                                    <p className="text-center text-sm text-muted-foreground">
-                                        Aucun message pour cette conversation.
-                                    </p>
-                                )}
-                                {messages.map((message) => (
-                                    <MessageBubble
-                                        key={message.id}
-                                        message={message}
-                                    />
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Commande en cours</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {conversation.draft_order ? (
-                                <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs">
-                                    {JSON.stringify(
-                                        conversation.draft_order,
-                                        null,
-                                        2,
-                                    )}
-                                </pre>
-                            ) : (
-                                <p className="text-sm text-muted-foreground italic">
-                                    Aucune commande en cours de construction.
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Fil de discussion</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex min-h-150 flex-col gap-2 overflow-y-auto rounded-lg bg-[#E5DDD5] p-4 dark:bg-neutral-800">
+                            {messages.length === 0 && (
+                                <p className="text-center text-sm text-muted-foreground">
+                                    Aucun message pour cette conversation.
                                 </p>
                             )}
-                        </CardContent>
-                    </Card>
-                </div>
+                            {messages.map((message) => (
+                                <MessageBubble
+                                    key={message.id}
+                                    message={message}
+                                />
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </>
     );

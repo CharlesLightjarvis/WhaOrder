@@ -1,9 +1,5 @@
 export type WhatsAppSessionStatus =
-    | 'STOPPED'
-    | 'STARTING'
-    | 'SCAN_QR_CODE'
-    | 'WORKING'
-    | 'FAILED';
+    'STOPPED' | 'STARTING' | 'SCAN_QR_CODE' | 'WORKING' | 'FAILED';
 
 export type WhatsAppSession = {
     id: string;

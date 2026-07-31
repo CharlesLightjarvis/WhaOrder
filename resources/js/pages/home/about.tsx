@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import {
     Heart,
     Sparkles,
@@ -11,6 +10,8 @@ import {
     ArrowRight,
     Globe,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 /* ── données ─────────────────────────────────────────────── */
 
@@ -52,19 +53,19 @@ const equipe = [
         initiales: 'TD',
         nom: 'Thomas Durand',
         role: 'Co-fondateur & Directeur produit',
-        bio: 'Entrepreneur digital et méditant zen depuis 10 ans. Thomas allie vision technologique et expérience spirituelle pour créer des outils d\'apprentissage transformateurs.',
+        bio: "Entrepreneur digital et méditant zen depuis 10 ans. Thomas allie vision technologique et expérience spirituelle pour créer des outils d'apprentissage transformateurs.",
     },
     {
         initiales: 'SC',
         nom: 'Sarah Chakroun',
         role: 'Responsable formateurs & Qualité',
-        bio: 'Praticienne Ayurveda et coach certifiée ICF. Sarah sélectionne et accompagne nos formateurs pour garantir la qualité et l\'authenticité de chaque cours.',
+        bio: "Praticienne Ayurveda et coach certifiée ICF. Sarah sélectionne et accompagne nos formateurs pour garantir la qualité et l'authenticité de chaque cours.",
     },
     {
         initiales: 'AB',
         nom: 'Antoine Bonneau',
         role: 'Responsable communauté',
-        bio: 'Ancien sophrologue reconverti dans le numérique. Antoine anime notre communauté d\'apprenants et veille à ce que chacun trouve sa place sur pMindfull.',
+        bio: "Ancien sophrologue reconverti dans le numérique. Antoine anime notre communauté d'apprenants et veille à ce que chacun trouve sa place sur pMindfull.",
     },
 ];
 
@@ -73,19 +74,19 @@ const valeurs = [
         icon: Heart,
         titre: 'Bienveillance',
         description:
-            "Chaque interaction sur pMindfull est guidée par la douceur et le respect. Nous croyons que la transformation durable naît dans un espace sûr et bienveillant.",
+            'Chaque interaction sur pMindfull est guidée par la douceur et le respect. Nous croyons que la transformation durable naît dans un espace sûr et bienveillant.',
     },
     {
         icon: Sparkles,
         titre: 'Authenticité',
         description:
-            'Nos formateurs sont des praticiens actifs et passionnés. Ce qu\'ils enseignent, ils le vivent. Pas de contenu superficiel — seulement des savoirs incarnés.',
+            "Nos formateurs sont des praticiens actifs et passionnés. Ce qu'ils enseignent, ils le vivent. Pas de contenu superficiel — seulement des savoirs incarnés.",
     },
     {
         icon: Lightbulb,
         titre: 'Accessibilité',
         description:
-            "Le bien-être ne devrait pas être un luxe. Nous concevons des formations claires, progressives et adaptées à tous les niveaux, pour rendre ces pratiques accessibles à chacun.",
+            'Le bien-être ne devrait pas être un luxe. Nous concevons des formations claires, progressives et adaptées à tous les niveaux, pour rendre ces pratiques accessibles à chacun.',
     },
     {
         icon: GraduationCap,
@@ -350,6 +351,7 @@ export default function About() {
                     >
                         {valeurs.map((val) => {
                             const Icon = val.icon;
+
                             return (
                                 <motion.div key={val.titre} variants={fadeUp}>
                                     <Card className="h-full border-border/40 bg-background/60 backdrop-blur-sm dark:border-border/50 dark:bg-background/50">

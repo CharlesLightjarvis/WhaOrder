@@ -3,10 +3,11 @@
 namespace App\Repositories\Categories;
 
 use App\Models\Category;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentCategoryRepository implements CategoryRepository
 {
+    /** @return LengthAwarePaginator<int, Category> */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Category::query()

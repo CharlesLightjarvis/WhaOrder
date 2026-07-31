@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(curl *)",
-      "WebSearch"
+      "WebSearch",
+      "PowerShell(composer audit *)",
+      "PowerShell(npm audit *)"
     ]
   },
   "enableAllProjectMcpServers": true,

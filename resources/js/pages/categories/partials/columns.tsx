@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { type ColumnDef } from '@tanstack/react-table';
 import { Link, router } from '@inertiajs/react';
+import type { ColumnDef } from '@tanstack/react-table';
 import { PencilIcon, Trash2Icon, MoreHorizontalIcon } from 'lucide-react';
+import { useState } from 'react';
+import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import { DataTableColumnHeader } from '@/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +20,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import type { Category } from '@/types/category';
 
 function RowActions({ category }: { category: Category }) {
@@ -72,9 +72,9 @@ function RowActions({ category }: { category: Category }) {
                         <DialogTitle>Supprimer la catégorie</DialogTitle>
                         <DialogDescription>
                             Êtes-vous sûr de vouloir supprimer{' '}
-                            <strong>"{category.name}"</strong> ? Les produits
-                            de cette catégorie ne seront pas supprimés, mais
-                            ne seront plus catégorisés.
+                            <strong>"{category.name}"</strong> ? Les produits de
+                            cette catégorie ne seront pas supprimés, mais ne
+                            seront plus catégorisés.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

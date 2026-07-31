@@ -111,7 +111,7 @@ class ModifyOrderTool implements Tool
             }
         }
 
-        $stock = $variant?->stock ?? $product->stock;
+        $stock = $variant ? $variant->stock : $product->stock;
 
         if ($stock < $quantity) {
             return $this->failure("Stock insuffisant : il ne reste que {$stock} unité(s).");
@@ -169,7 +169,9 @@ class ModifyOrderTool implements Tool
         }
 
         $delta = $quantity - $item->quantity;
-        $stock = $item->variant?->stock ?? $item->product?->stock ?? 0;
+        $stock = $item->variant
+            ? $item->variant->stock
+            : ($item->product ? $item->product->stock : 0);
 
         if ($delta > 0 && $stock < $delta) {
             return $this->failure("Stock insuffisant pour augmenter la quantité : il ne reste que {$stock} unité(s) supplémentaire(s) disponible(s).");

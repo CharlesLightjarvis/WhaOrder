@@ -20,7 +20,7 @@ class RefreshWhatsAppSessionStatus
     {
         $remote = $this->client->getStatus($whatsAppSession->waha_session_name);
 
-        $status = WhatsAppSessionStatus::tryFrom($remote['status'] ?? 'FAILED') ?? WhatsAppSessionStatus::Failed;
+        $status = WhatsAppSessionStatus::tryFrom($remote['status']) ?? WhatsAppSessionStatus::Failed;
 
         $data = [
             'status' => $status,

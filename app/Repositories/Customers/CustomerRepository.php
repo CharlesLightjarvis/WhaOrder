@@ -3,10 +3,11 @@
 namespace App\Repositories\Customers;
 
 use App\Models\Customer;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface CustomerRepository
 {
+    /** @return LengthAwarePaginator<int, Customer> */
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
     public function find(string $id): Customer;

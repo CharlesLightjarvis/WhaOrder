@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
+import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
-import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
-import CategoryList from './partials/category-list';
-import type { Paginated } from '@/types/pagination';
 import type { Category } from '@/types/category';
+import type { Paginated } from '@/types/pagination';
+import CategoryList from './partials/category-list';
 
 type Props = {
     categories: Paginated<Category>;

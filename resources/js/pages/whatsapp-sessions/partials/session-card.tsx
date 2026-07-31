@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import WhatsAppSessionController from '@/actions/App/Http/Controllers/WhatsAppSessionController';
 import type {
     WhatsAppSession,
     WhatsAppSessionStatus,

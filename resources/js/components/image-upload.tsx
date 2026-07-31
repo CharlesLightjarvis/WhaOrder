@@ -1,5 +1,5 @@
 import { ImageIcon, XIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type ExistingImage = {
     id: string;
@@ -106,17 +106,16 @@ function FilePreview({
     onRemove: () => void;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
     useEffect(() => {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-
-        return () => URL.revokeObjectURL(url);
-    }, [file]);
+        return () => URL.revokeObjectURL(previewUrl);
+    }, [previewUrl]);
 
     useEffect(() => {
-        if (!inputRef.current) return;
+        if (!inputRef.current) {
+            return;
+        }
 
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -126,7 +125,11 @@ function FilePreview({
     return (
         <div className="group relative size-20 overflow-hidden rounded-md border border-border">
             {previewUrl && (
-                <img src={previewUrl} alt="" className="size-full object-cover" />
+                <img
+                    src={previewUrl}
+                    alt=""
+                    className="size-full object-cover"
+                />
             )}
             <input ref={inputRef} type="file" name={name} className="hidden" />
             <button

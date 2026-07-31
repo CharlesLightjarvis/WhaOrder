@@ -50,3 +50,21 @@ test('registration requires a business name', function () {
     $response->assertSessionHasErrors('business_name');
     $this->assertGuest();
 });
+
+test('public registration is rate limited', function () {
+    foreach (range(1, 5) as $attempt) {
+        $this->call(
+            'POST',
+            route('register.store'),
+            server: ['REMOTE_ADDR' => '198.51.100.60'],
+        )->assertRedirect();
+    }
+
+    $response = $this->call(
+        'POST',
+        route('register.store'),
+        server: ['REMOTE_ADDR' => '198.51.100.60'],
+    );
+
+    expect($response->getStatusCode())->toBe(429);
+});

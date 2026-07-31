@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Tools\Request;
 
 uses(RefreshDatabase::class);
@@ -187,4 +188,14 @@ it('returns a clear message for an unknown order reference', function () {
     ]);
 
     expect($message)->toContain('introuvable');
+});
+
+it('prevents the action layer from decrementing stock below zero', function () {
+    $product = Product::factory()->for($this->merchant)->create(['stock' => 1]);
+
+    expect(fn () => app(ModifyOrder::class)->addItem($this->order, $product, null, 2))
+        ->toThrow(ValidationException::class);
+
+    expect($product->fresh()->stock)->toBe(1)
+        ->and($this->order->fresh()->items)->toHaveCount(1);
 });

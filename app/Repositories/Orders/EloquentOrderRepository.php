@@ -3,10 +3,11 @@
 namespace App\Repositories\Orders;
 
 use App\Models\Order;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentOrderRepository implements OrderRepository
 {
+    /** @return LengthAwarePaginator<int, Order> */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Order::query()

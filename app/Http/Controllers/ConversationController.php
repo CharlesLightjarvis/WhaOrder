@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ConversationResource;
 use App\Models\Conversation;
 use App\Repositories\Conversations\ConversationRepository;
+use Illuminate\Support\Facades\Date;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Ai\Models\ConversationMessage;
@@ -44,10 +45,10 @@ class ConversationController extends Controller
         return Inertia::render('conversations/show', [
             'conversation' => ConversationResource::make($conversation),
             'messages' => $messages->map(fn (ConversationMessage $message) => [
-                'id' => $message->id,
-                'role' => $message->role,
-                'content' => $message->content,
-                'created_at' => $message->created_at->toDateTimeString(),
+                'id' => $message->getKey(),
+                'role' => (string) $message->getAttribute('role'),
+                'content' => (string) $message->getAttribute('content'),
+                'created_at' => Date::parse((string) $message->getAttribute('created_at'))->toDateTimeString(),
             ]),
         ]);
     }

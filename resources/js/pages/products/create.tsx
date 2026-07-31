@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Form, Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
+import ProductController from '@/actions/App/Http/Controllers/ProductController';
 import { ImageUpload } from '@/components/image-upload';
 import InputError from '@/components/input-error';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -17,8 +15,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { PlusIcon, Trash2Icon } from 'lucide-react';
-import ProductController from '@/actions/App/Http/Controllers/ProductController';
+import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
 import type { Category } from '@/types/category';
 
 type VariantDraft = {
@@ -67,17 +67,14 @@ export default function ProductCreate({ categories }: PageProps) {
                         Créer un produit
                     </h1>
                     <p className="text-muted-foreground">
-                        Renseignez les informations du produit, ses variantes
-                        et ses images.
+                        Renseignez les informations du produit, ses variantes et
+                        ses images.
                     </p>
                 </div>
 
                 <Separator />
 
-                <Form
-                    {...ProductController.store.form()}
-                    className="space-y-8"
-                >
+                <Form {...ProductController.store.form()} className="space-y-8">
                     {({ processing, errors, clearErrors }) => (
                         <>
                             <input
@@ -197,8 +194,8 @@ export default function ProductCreate({ categories }: PageProps) {
                                         )}
                                         {hasVariants ? (
                                             <p className="text-xs text-muted-foreground">
-                                                Calculé automatiquement à
-                                                partir du stock des variantes.
+                                                Calculé automatiquement à partir
+                                                du stock des variantes.
                                             </p>
                                         ) : (
                                             <InputError
@@ -208,7 +205,10 @@ export default function ProductCreate({ categories }: PageProps) {
                                     </div>
 
                                     <div className="sm:col-span-1 lg:col-span-2">
-                                        <div className="h-6" aria-hidden="true" />
+                                        <div
+                                            className="h-6"
+                                            aria-hidden="true"
+                                        />
                                         <div className="flex h-10 items-center gap-3">
                                             <Checkbox
                                                 id="is_active"
@@ -245,8 +245,8 @@ export default function ProductCreate({ categories }: PageProps) {
 
                                 {variants.length === 0 && (
                                     <p className="text-sm text-muted-foreground">
-                                        Aucune variante. Utile pour les
-                                        tailles, couleurs, etc.
+                                        Aucune variante. Utile pour les tailles,
+                                        couleurs, etc.
                                     </p>
                                 )}
 
@@ -349,9 +349,7 @@ export default function ProductCreate({ categories }: PageProps) {
 
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Spinner className="mr-2" />
-                                    )}
+                                    {processing && <Spinner className="mr-2" />}
                                     Créer le produit
                                 </Button>
                             </div>

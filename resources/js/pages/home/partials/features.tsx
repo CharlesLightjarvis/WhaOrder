@@ -84,8 +84,8 @@ export function Features() {
                     </h2>
 
                     <p className="mx-auto max-w-xl text-lg text-foreground/60">
-                        De la première question du client au reçu de
-                        livraison, WhaOrder automatise chaque étape.
+                        De la première question du client au reçu de livraison,
+                        WhaOrder automatise chaque étape.
                     </p>
                 </motion.div>
 

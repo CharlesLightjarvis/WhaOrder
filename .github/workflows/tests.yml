@@ -60,5 +60,11 @@ jobs:
       - name: Run Type Analysis
         run: composer types:check
 
+      - name: Check Frontend Types
+        run: npm run types:check
+
+      - name: Audit PHP Dependencies
+        run: composer audit --locked
+
       - name: Tests
         run: php artisan test

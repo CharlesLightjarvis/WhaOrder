@@ -59,7 +59,7 @@ class CalculateTotalTool implements Tool
             $product = Product::query()
                 ->where('merchant_id', $this->merchant->id)
                 ->with('variants')
-                ->find($item['product_id'] ?? null);
+                ->find((string) ($item['product_id'] ?? ''));
 
             if (! $product || ! $product->is_active) {
                 return 'Produit introuvable ou inactif (product_id='.($item['product_id'] ?? '?').').';
@@ -82,8 +82,8 @@ class CalculateTotalTool implements Tool
                 return "Quantité invalide pour {$product->name}.";
             }
 
-            $stock = $variant?->stock ?? $product->stock;
-            $unitPrice = (float) ($variant?->price ?? $product->price);
+            $stock = $variant ? $variant->stock : $product->stock;
+            $unitPrice = (float) ($variant && $variant->price !== null ? $variant->price : $product->price);
 
             if ($stock < $quantity) {
                 $label = $variant ? "{$product->name} ({$variant->name})" : $product->name;
@@ -147,16 +147,24 @@ class CalculateTotalTool implements Tool
     {
         $currency = $this->merchant->currency;
 
-        $lines = collect($draftOrder['items'])->map(fn (array $item) => sprintf(
-            '- %s%s x%d = %s %s',
-            $item['product_name_snapshot'],
-            $item['variant_name_snapshot'] ? " ({$item['variant_name_snapshot']})" : '',
-            $item['quantity'],
-            number_format($item['line_total'], 2),
-            $currency,
-        ))->implode("\n");
+        $lines = [];
 
-        $summary = "{$lines}\nSous-total : ".number_format($draftOrder['subtotal'], 2)." {$currency}"
+        foreach ($draftOrder['items'] as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $lines[] = sprintf(
+                '- %s%s x%d = %s %s',
+                $item['product_name_snapshot'],
+                $item['variant_name_snapshot'] ? " ({$item['variant_name_snapshot']})" : '',
+                $item['quantity'],
+                number_format($item['line_total'], 2),
+                $currency,
+            );
+        }
+
+        $summary = implode("\n", $lines)."\nSous-total : ".number_format($draftOrder['subtotal'], 2)." {$currency}"
             ."\nLivraison : ".number_format($draftOrder['delivery_fee'], 2)." {$currency}"
             ."\nTotal : ".number_format($draftOrder['total'], 2)." {$currency}";
 

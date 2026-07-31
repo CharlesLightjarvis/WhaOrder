@@ -13,6 +13,7 @@ use App\Models\WhatsAppSession;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Laravel\Ai\Exceptions\AiException;
 
 uses(RefreshDatabase::class);
 
@@ -116,4 +117,40 @@ it('bypasses classification and stays on the OrderAgent while a draft order is i
     OrderAgent::assertPrompted(fn () => true);
     SupportAgent::assertNeverPrompted();
     ChiefAgent::assertNeverPrompted();
+});
+
+it('allows the same message to retry after an AI failure', function () {
+    $conversation = Conversation::factory()->for($this->merchant)->for($this->customer)->create([
+        'status' => ConversationStatus::Active,
+        'draft_order' => ['items' => [['product_id' => (string) Str::uuid(), 'quantity' => 1]]],
+        'last_message_at' => null,
+    ]);
+    $message = ($this->message)('Je voudrais continuer ma commande');
+    $attempts = 0;
+
+    OrderAgent::fake(function () use (&$attempts) {
+        $attempts++;
+
+        if ($attempts === 1) {
+            throw new AiException('Provider unavailable.');
+        }
+
+        return 'Reprenons votre commande.';
+    });
+
+    ProcessIncomingWhatsAppMessage::dispatchSync($this->session, $message);
+
+    expect($conversation->fresh()->last_message_at)->toBeNull();
+
+    ProcessIncomingWhatsAppMessage::dispatchSync($this->session, $message);
+
+    $processedAt = $conversation->fresh()->last_message_at;
+
+    expect($processedAt)->not->toBeNull();
+
+    $this->travel(1)->minute();
+
+    ProcessIncomingWhatsAppMessage::dispatchSync($this->session, $message);
+
+    expect($conversation->fresh()->last_message_at)->toEqual($processedAt);
 });

@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import { router } from '@inertiajs/react';
+import { useMemo } from 'react';
+import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
-import type { Paginated } from '@/types/pagination';
 import type { Category } from '@/types/category';
-import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
+import type { Paginated } from '@/types/pagination';
 import { createColumns } from './columns';
 
 type Props = {
@@ -44,8 +44,7 @@ export default function CategoryList({ categories }: Props) {
                         Précédent
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                        Page {categories.current_page} /{' '}
-                        {categories.last_page}
+                        Page {categories.current_page} / {categories.last_page}
                     </span>
                     <Button
                         variant="outline"

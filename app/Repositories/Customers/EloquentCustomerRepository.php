@@ -3,10 +3,11 @@
 namespace App\Repositories\Customers;
 
 use App\Models\Customer;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentCustomerRepository implements CustomerRepository
 {
+    /** @return LengthAwarePaginator<int, Customer> */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Customer::query()

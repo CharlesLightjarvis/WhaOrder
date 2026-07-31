@@ -1,7 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { CreditCardIcon, MapPinIcon, UserIcon } from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import OrderController from '@/actions/App/Http/Controllers/OrderController';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,11 +12,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import OrderController from '@/actions/App/Http/Controllers/OrderController';
+import AppLayout from '@/layouts/app-layout';
+import { dashboard } from '@/routes';
+import type { DeliveryStatus, Order, PaymentStatus } from '@/types/order';
 import OrderStatusSelect from './partials/order-status-select';
 import OrderStatusTracker from './partials/order-status-tracker';
 import PaymentProofCard from './partials/payment-proof-card';
-import type { DeliveryStatus, Order, PaymentStatus } from '@/types/order';
 
 type Props = {
     order: Order;
@@ -276,6 +276,7 @@ OrderShow.layout = (page: React.ReactNode) => (
 
 function OrderShowLayout({ children }: { children: React.ReactNode }) {
     const { order } = usePage<Props>().props;
+
     return (
         <AppLayout
             breadcrumbs={[

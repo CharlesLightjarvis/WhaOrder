@@ -31,7 +31,7 @@ class ConnectWhatsAppSession
         return DB::transaction(fn () => $this->repository->create([
             'label' => $label,
             'waha_session_name' => $name,
-            'status' => WhatsAppSessionStatus::tryFrom($session['status'] ?? 'STARTING') ?? WhatsAppSessionStatus::Starting,
+            'status' => WhatsAppSessionStatus::tryFrom($session['status']) ?? WhatsAppSessionStatus::Starting,
         ]));
     }
 }

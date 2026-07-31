@@ -3,10 +3,11 @@
 namespace App\Repositories\Conversations;
 
 use App\Models\Conversation;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentConversationRepository implements ConversationRepository
 {
+    /** @return LengthAwarePaginator<int, Conversation> */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Conversation::query()

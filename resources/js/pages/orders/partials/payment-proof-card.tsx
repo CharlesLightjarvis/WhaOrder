@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { CheckIcon, XIcon } from 'lucide-react';
+import { useState } from 'react';
+import PaymentProofController from '@/actions/App/Http/Controllers/PaymentProofController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import PaymentProofController from '@/actions/App/Http/Controllers/PaymentProofController';
 import type { PaymentProof, PaymentProofStatus } from '@/types/order';
 
 type Props = {
