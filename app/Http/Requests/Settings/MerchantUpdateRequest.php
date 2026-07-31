@@ -17,7 +17,6 @@ class MerchantUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'whatsapp_number' => ['nullable', 'string', 'max:255'],
             'whatsapp_admin_number' => ['nullable', 'string', 'max:255'],
             'currency' => ['required', 'string', Rule::in(array_keys(Currencies::list()))],
             'timezone' => ['required', 'string', 'timezone'],

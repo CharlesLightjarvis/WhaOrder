@@ -137,10 +137,7 @@
             <td style="width: 33%;">
                 <div class="meta-label">Facturé par</div>
                 <div class="meta-value">
-                    {{ $merchant->name }}<br>
-                    @if ($merchant->whatsapp_number)
-                        {{ $merchant->whatsapp_number }}
-                    @endif
+                    {{ $merchant->name }}
                 </div>
             </td>
             <td style="width: 34%;">

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-#[Fillable(['name', 'slug', 'whatsapp_number', 'whatsapp_admin_number', 'currency', 'timezone', 'delivery_fee'])]
+#[Fillable(['name', 'slug', 'whatsapp_admin_number', 'currency', 'timezone', 'delivery_fee'])]
 class Merchant extends Model
 {
     /** @use HasFactory<MerchantFactory> */

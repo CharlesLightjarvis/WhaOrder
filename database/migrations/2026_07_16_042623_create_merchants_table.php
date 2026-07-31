@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('whatsapp_number')->nullable();
             $table->string('whatsapp_admin_number')->nullable();
             $table->string('currency');
             $table->string('timezone')->default('UTC');

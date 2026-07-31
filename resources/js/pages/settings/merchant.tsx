@@ -56,7 +56,7 @@ export default function MerchantSettings() {
                 <Heading
                     variant="small"
                     title="Business"
-                    description="Update your shop's name, WhatsApp numbers, currency, and timezone"
+                    description="Update your shop's name, notification number, currency, and timezone"
                 />
 
                 <Form
@@ -75,24 +75,6 @@ export default function MerchantSettings() {
                                     onChange={() => clearErrors('name')}
                                 />
                                 <InputError message={errors.name} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="whatsapp_number">
-                                    Shop WhatsApp number
-                                </Label>
-                                <Input
-                                    id="whatsapp_number"
-                                    name="whatsapp_number"
-                                    defaultValue={
-                                        merchant.whatsapp_number ?? ''
-                                    }
-                                    placeholder="+225 07 00 00 00 00"
-                                    onChange={() =>
-                                        clearErrors('whatsapp_number')
-                                    }
-                                />
-                                <InputError message={errors.whatsapp_number} />
                             </div>
 
                             <div className="grid gap-2">

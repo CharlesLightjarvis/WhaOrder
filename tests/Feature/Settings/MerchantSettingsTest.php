@@ -29,7 +29,6 @@ it('renders the business settings page with the merchant data', function () {
 it('updates the merchant business info', function () {
     $response = $this->actingAs($this->user)->patch(route('merchant.update'), [
         'name' => 'Nouvelle Boutique',
-        'whatsapp_number' => '+225 07 00 00 00 00',
         'whatsapp_admin_number' => '+225 07 11 11 11 11',
         'currency' => 'GHS',
         'timezone' => 'Africa/Accra',
@@ -41,7 +40,7 @@ it('updates the merchant business info', function () {
     $fresh = $this->merchant->fresh();
 
     expect($fresh->name)->toBe('Nouvelle Boutique')
-        ->and($fresh->whatsapp_number)->toBe('+225 07 00 00 00 00')
+        ->and($fresh->whatsapp_admin_number)->toBe('+225 07 11 11 11 11')
         ->and($fresh->currency)->toBe('GHS')
         ->and($fresh->timezone)->toBe('Africa/Accra')
         ->and((float) $fresh->delivery_fee)->toBe(2000.0);

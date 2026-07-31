@@ -37,7 +37,6 @@ class MerchantFactory extends Factory
                 'La Malle de Awa',
                 'Bijoux Coco',
             ]),
-            'whatsapp_number' => $region['phone_prefix'].' '.fake()->numerify('## ## ## ##'),
             'whatsapp_admin_number' => $region['phone_prefix'].' '.fake()->numerify('## ## ## ##'),
             'currency' => $region['currency'],
             'timezone' => $region['timezone'],

@@ -21,7 +21,6 @@ class MerchantController extends Controller
         return Inertia::render('settings/merchant', [
             'merchant' => [
                 'name' => $merchant->name,
-                'whatsapp_number' => $merchant->whatsapp_number,
                 'whatsapp_admin_number' => $merchant->whatsapp_admin_number,
                 'currency' => $merchant->currency,
                 'timezone' => $merchant->timezone,

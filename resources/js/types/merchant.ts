@@ -1,6 +1,5 @@
 export type Merchant = {
     name: string;
-    whatsapp_number: string | null;
     whatsapp_admin_number: string | null;
     currency: string;
     timezone: string;
