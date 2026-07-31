@@ -22,7 +22,7 @@ class ModifyOrder
     public function addItem(Order $order, Product $product, ?ProductVariant $variant, int $quantity): Order
     {
         return DB::transaction(function () use ($order, $product, $variant, $quantity) {
-            $unitPrice = (float) ($variant !== null && $variant->price !== null
+            $unitPrice = (float) ($variant !== null
                 ? $variant->price
                 : $product->price);
 

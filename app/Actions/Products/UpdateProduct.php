@@ -28,6 +28,13 @@ class UpdateProduct
             $variantsData = $data['variants'] ?? [];
             unset($data['images'], $data['keep_image_ids'], $data['variants']);
 
+            if ($variantsData !== []) {
+                $data['price'] = null;
+                $data['stock'] = null;
+                $images = [];
+                $keepImageIds = [];
+            }
+
             $product = $this->repository->update($product, $data);
 
             $this->pruneProductImages->handle($product->images(), $keepImageIds);
@@ -46,8 +53,8 @@ class UpdateProduct
 
                 $variant->fill([
                     'name' => $variantData['name'],
-                    'price' => $variantData['price'] ?? null,
-                    'stock' => $variantData['stock'] ?? 0,
+                    'price' => $variantData['price'],
+                    'stock' => $variantData['stock'],
                 ]);
 
                 $product->variants()->save($variant);
@@ -58,7 +65,12 @@ class UpdateProduct
                 $this->checkLowStock->handleVariant($variant);
             }
 
-            $product->variants()->whereNotIn('id', $keptVariantIds)->delete();
+            $removedVariants = $product->variants()->whereNotIn('id', $keptVariantIds)->get();
+
+            foreach ($removedVariants as $removedVariant) {
+                $this->pruneProductImages->handle($removedVariant->images(), []);
+                $removedVariant->delete();
+            }
 
             $this->syncProductStock->handle($product);
             $this->checkLowStock->handle($product);

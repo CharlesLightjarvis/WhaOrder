@@ -64,6 +64,7 @@ class FinalizeOrder
                 if ($item['variant_id']) {
                     $updated = ProductVariant::query()
                         ->where('id', $item['variant_id'])
+                        ->where('product_id', $item['product_id'])
                         ->whereHas('product', fn ($query) => $query->where('merchant_id', $merchant->id))
                         ->where('stock', '>=', $item['quantity'])
                         ->decrement('stock', $item['quantity']);
@@ -86,6 +87,7 @@ class FinalizeOrder
                     $updated = Product::query()
                         ->where('id', $item['product_id'])
                         ->where('merchant_id', $merchant->id)
+                        ->whereDoesntHave('variants')
                         ->where('stock', '>=', $item['quantity'])
                         ->decrement('stock', $item['quantity']);
 

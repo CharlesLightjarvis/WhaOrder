@@ -76,6 +76,10 @@ class CalculateTotalTool implements Tool
                 }
             }
 
+            if ($product->variants->isNotEmpty() && $variant === null) {
+                return "Choisis une variante pour {$product->name} avant de calculer le panier.";
+            }
+
             $quantity = (int) ($item['quantite'] ?? 0);
 
             if ($quantity < 1) {
@@ -83,7 +87,7 @@ class CalculateTotalTool implements Tool
             }
 
             $stock = $variant ? $variant->stock : $product->stock;
-            $unitPrice = (float) ($variant && $variant->price !== null ? $variant->price : $product->price);
+            $unitPrice = (float) ($variant ? $variant->price : $product->price);
 
             if ($stock < $quantity) {
                 $label = $variant ? "{$product->name} ({$variant->name})" : $product->name;

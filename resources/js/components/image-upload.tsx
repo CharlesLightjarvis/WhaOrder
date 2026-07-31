@@ -10,12 +10,14 @@ type Props = {
     name?: string;
     keepFieldName?: string;
     existingImages?: ExistingImage[];
+    disabled?: boolean;
 };
 
 export function ImageUpload({
     name = 'images',
     keepFieldName = 'keep_image_ids',
     existingImages = [],
+    disabled = false,
 }: Props) {
     const [files, setFiles] = useState<File[]>([]);
     const [removedIds, setRemovedIds] = useState<string[]>([]);
@@ -31,7 +33,9 @@ export function ImageUpload({
     }
 
     return (
-        <div className="space-y-3">
+        <div
+            className={`space-y-3 ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+        >
             <div className="flex flex-wrap gap-3">
                 {keptImages.map((image) => (
                     <Thumbnail
@@ -63,20 +67,22 @@ export function ImageUpload({
                         type="file"
                         accept="image/png,image/jpeg,image/webp"
                         multiple
+                        disabled={disabled}
                         className="hidden"
                         onChange={handleSelect}
                     />
                 </label>
             </div>
 
-            {keptImages.map((image) => (
-                <input
-                    key={`keep-${image.id}`}
-                    type="hidden"
-                    name={`${keepFieldName}[]`}
-                    value={image.id}
-                />
-            ))}
+            {!disabled &&
+                keptImages.map((image) => (
+                    <input
+                        key={`keep-${image.id}`}
+                        type="hidden"
+                        name={`${keepFieldName}[]`}
+                        value={image.id}
+                    />
+                ))}
         </div>
     );
 }

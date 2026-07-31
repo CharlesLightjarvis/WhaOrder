@@ -19,7 +19,7 @@ beforeEach(function () {
     app()->instance('currentMerchantId', $this->merchant->id);
 });
 
-it('sums variant stock into the product stock when creating a product with variants', function () {
+it('clears parent price and stock when creating a product with variants', function () {
     $category = Category::factory()->for($this->merchant)->create();
 
     $product = app(CreateProduct::class)->handle([
@@ -30,12 +30,13 @@ it('sums variant stock into the product stock when creating a product with varia
         'stock' => 999,
         'is_active' => true,
         'variants' => [
-            ['name' => 'Bleu', 'price' => null, 'stock' => 5],
-            ['name' => 'Rouge', 'price' => null, 'stock' => 3],
+            ['name' => 'Bleu', 'price' => 11000, 'stock' => 5],
+            ['name' => 'Rouge', 'price' => 12000, 'stock' => 3],
         ],
     ]);
 
-    expect($product->fresh()->stock)->toBe(8);
+    expect($product->fresh()->price)->toBeNull()
+        ->and($product->fresh()->stock)->toBeNull();
 });
 
 it('keeps the submitted stock untouched for a product without variants', function () {
@@ -56,26 +57,27 @@ it('keeps the submitted stock untouched for a product without variants', functio
 
 it('resyncs product stock when variants are updated', function () {
     $product = Product::factory()->for($this->merchant)->create(['stock' => 999]);
-    $variant = $product->variants()->create(['name' => 'Taille M', 'stock' => 4]);
+    $variant = $product->variants()->create(['name' => 'Taille M', 'price' => 10000, 'stock' => 4]);
 
     app(UpdateProduct::class)->handle($product, [
         'category_id' => $product->category_id,
         'name' => $product->name,
         'description' => $product->description,
-        'price' => $product->price,
+        'price' => 10000,
         'stock' => 999,
         'is_active' => true,
         'variants' => [
-            ['id' => $variant->id, 'name' => 'Taille M', 'price' => null, 'stock' => 9],
+            ['id' => $variant->id, 'name' => 'Taille M', 'price' => 10000, 'stock' => 9],
         ],
     ]);
 
-    expect($product->fresh()->stock)->toBe(9);
+    expect($product->fresh()->price)->toBeNull()
+        ->and($product->fresh()->stock)->toBeNull();
 });
 
 it('resyncs product stock after an order decrements a variant', function () {
     $product = Product::factory()->for($this->merchant)->create(['stock' => 999]);
-    $variant = $product->variants()->create(['name' => 'Taille L', 'stock' => 10]);
+    $variant = $product->variants()->create(['name' => 'Taille L', 'price' => 10000, 'stock' => 10]);
 
     $customer = Customer::factory()->for($this->merchant)->create();
     $conversation = Conversation::factory()->for($this->merchant)->for($customer)->create([
@@ -102,7 +104,7 @@ it('resyncs product stock after an order decrements a variant', function () {
     ]);
 
     expect($variant->fresh()->stock)->toBe(7)
-        ->and($product->fresh()->stock)->toBe(7);
+        ->and($product->fresh()->stock)->toBeNull();
 });
 
 it('refuses to finalize an order when product stock is insufficient', function () {

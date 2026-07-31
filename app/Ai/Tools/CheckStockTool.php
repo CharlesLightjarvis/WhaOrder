@@ -54,6 +54,10 @@ class CheckStockTool implements Tool
         $stock = $product->stock;
         $label = $product->name;
 
+        if ($product->variants->isNotEmpty() && ! $variantId) {
+            return "Choisis une variante pour {$product->name} avant de vérifier le stock.";
+        }
+
         if ($variantId) {
             $variant = $product->variants->firstWhere('id', $variantId);
 

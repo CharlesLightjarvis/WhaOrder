@@ -151,16 +151,26 @@ export default function ProductCreate({ categories }: PageProps) {
                                         <Label htmlFor="price">Prix *</Label>
                                         <Input
                                             id="price"
-                                            name="price"
+                                            name={
+                                                hasVariants
+                                                    ? undefined
+                                                    : 'price'
+                                            }
                                             type="number"
                                             min={0}
                                             step={0.01}
                                             placeholder="15000"
+                                            disabled={hasVariants}
                                             onChange={() =>
                                                 clearErrors('price')
                                             }
                                         />
                                         <InputError message={errors.price} />
+                                        {hasVariants && (
+                                            <p className="text-xs text-muted-foreground">
+                                                Défini sur chaque variante.
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2 sm:col-span-1 lg:col-span-3">
@@ -185,17 +195,11 @@ export default function ProductCreate({ categories }: PageProps) {
                                                 clearErrors('stock')
                                             }
                                         />
-                                        {hasVariants && (
-                                            <input
-                                                type="hidden"
-                                                name="stock"
-                                                value={variantsStockTotal}
-                                            />
-                                        )}
                                         {hasVariants ? (
                                             <p className="text-xs text-muted-foreground">
-                                                Calculé automatiquement à partir
-                                                du stock des variantes.
+                                                Non applicable au parent. Total
+                                                des variantes :{' '}
+                                                {variantsStockTotal}.
                                             </p>
                                         ) : (
                                             <InputError
@@ -228,10 +232,21 @@ export default function ProductCreate({ categories }: PageProps) {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+                                <div
+                                    className={`space-y-2 ${hasVariants ? 'opacity-50' : ''}`}
+                                >
                                     <Label>Images</Label>
-                                    <ImageUpload name="images" />
+                                    <ImageUpload
+                                        name="images"
+                                        disabled={hasVariants}
+                                    />
                                     <InputError message={errors.images} />
+                                    {hasVariants && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Ajoutez les photos sur chaque
+                                            variante.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -276,7 +291,7 @@ export default function ProductCreate({ categories }: PageProps) {
                                                 </div>
                                                 <div className="w-32 space-y-1">
                                                     <Label className="text-xs">
-                                                        Prix (optionnel)
+                                                        Prix *
                                                     </Label>
                                                     <Input
                                                         name={`variants[${index}][price]`}
@@ -295,7 +310,7 @@ export default function ProductCreate({ categories }: PageProps) {
                                                 </div>
                                                 <div className="w-24 space-y-1">
                                                     <Label className="text-xs">
-                                                        Stock
+                                                        Stock *
                                                     </Label>
                                                     <Input
                                                         name={`variants[${index}][stock]`}

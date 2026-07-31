@@ -143,7 +143,7 @@ export const createColumns = (): ColumnDef<Product>[] => [
         ),
         cell: ({ row }) => {
             const product = row.original;
-            const image = product.images?.[0];
+            const image = product.cover_image;
 
             return (
                 <div className="flex items-center gap-3">
@@ -187,26 +187,33 @@ export const createColumns = (): ColumnDef<Product>[] => [
         ),
     },
     {
-        accessorKey: 'stock',
+        accessorKey: 'stock_total',
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Stock" />
         ),
         cell: ({ row }) => (
             <span className="text-sm tabular-nums">
-                {row.getValue<number>('stock')}
+                {row.original.stock_total ?? '—'}
+                {row.original.has_variants ? ' au total' : ''}
             </span>
         ),
     },
     {
-        accessorKey: 'price',
+        accessorKey: 'price_min',
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Prix" />
         ),
-        cell: ({ row }) => (
-            <span className="text-sm tabular-nums">
-                {row.getValue<number>('price')}
-            </span>
-        ),
+        cell: ({ row }) => {
+            const { price_min: minimum, price_max: maximum } = row.original;
+            const price =
+                minimum === null
+                    ? '—'
+                    : maximum !== null && maximum !== minimum
+                      ? `${minimum.toLocaleString('fr-FR')} – ${maximum.toLocaleString('fr-FR')}`
+                      : minimum.toLocaleString('fr-FR');
+
+            return <span className="text-sm tabular-nums">{price}</span>;
+        },
     },
     {
         accessorKey: 'is_active',

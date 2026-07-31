@@ -25,7 +25,7 @@ class ProductVariantFactory extends Factory
                 'Taille S', 'Taille M', 'Taille L', 'Taille XL',
                 'Rouge', 'Bleu', 'Noir', 'Blanc',
             ]),
-            'price' => null,
+            'price' => fake()->numberBetween(1500, 75000),
             'stock' => fake()->numberBetween(0, 20),
         ];
     }

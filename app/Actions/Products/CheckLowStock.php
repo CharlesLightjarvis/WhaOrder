@@ -18,6 +18,10 @@ class CheckLowStock
      */
     public function handle(Product $product): void
     {
+        if ($product->stock === null) {
+            return;
+        }
+
         if ($this->isLowStock($product->stock, $product->low_stock_alerted_at)) {
             NotifyMerchantOfLowStock::dispatch($product);
             $product->update(['low_stock_alerted_at' => now()]);

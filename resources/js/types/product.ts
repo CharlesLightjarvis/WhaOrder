@@ -18,8 +18,13 @@ export type Product = {
     name: string;
     slug: string;
     description: string | null;
-    price: number;
-    stock: number;
+    price: number | null;
+    stock: number | null;
+    has_variants: boolean;
+    cover_image: ProductImage | null;
+    price_min: number | null;
+    price_max: number | null;
+    stock_total: number | null;
     is_active: boolean;
     category?: Category | null;
     images?: ProductImage[];

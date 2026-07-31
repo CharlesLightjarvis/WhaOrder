@@ -15,6 +15,8 @@ class EloquentProductRepository implements ProductRepository
             ->with([
                 'category:id,name',
                 'images' => fn ($query) => $query->whereNull('variant_id')->ordered()->limit(1),
+                'variants' => fn ($query) => $query->select(['id', 'product_id', 'name', 'price', 'stock']),
+                'variants.images' => fn ($query) => $query->ordered()->limit(1),
             ])
             ->withCount('variants')
             ->latest()
@@ -28,6 +30,8 @@ class EloquentProductRepository implements ProductRepository
             ->with([
                 'category:id,name',
                 'images' => fn ($query) => $query->whereNull('variant_id')->ordered()->limit(1),
+                'variants' => fn ($query) => $query->select(['id', 'product_id', 'name', 'price', 'stock']),
+                'variants.images' => fn ($query) => $query->ordered()->limit(1),
             ])
             ->withCount('variants')
             ->latest()

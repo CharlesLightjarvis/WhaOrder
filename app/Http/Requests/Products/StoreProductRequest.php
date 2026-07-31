@@ -23,6 +23,8 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $hasVariants = count((array) $this->input('variants', [])) > 0;
+
         return [
             'category_id' => [
                 'nullable',
@@ -31,15 +33,15 @@ class StoreProductRequest extends FormRequest
             ],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
+            'price' => [Rule::requiredIf(! $hasVariants), 'nullable', 'numeric', 'min:0'],
+            'stock' => [Rule::requiredIf(! $hasVariants), 'nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
-            'images' => ['array'],
+            'images' => [Rule::prohibitedIf($hasVariants), 'array'],
             'images.*' => ['image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'variants' => ['array'],
             'variants.*.name' => ['required_with:variants', 'string', 'max:255'],
-            'variants.*.price' => ['nullable', 'numeric', 'min:0'],
-            'variants.*.stock' => ['nullable', 'integer', 'min:0'],
+            'variants.*.price' => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.stock' => ['required_with:variants', 'integer', 'min:0'],
             'variants.*.images' => ['array'],
             'variants.*.images.*' => ['image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
         ];

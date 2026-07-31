@@ -24,6 +24,12 @@ class CreateProduct
             $variantsData = $data['variants'] ?? [];
             unset($data['images'], $data['variants']);
 
+            if ($variantsData !== []) {
+                $data['price'] = null;
+                $data['stock'] = null;
+                $images = [];
+            }
+
             $product = $this->repository->create($data);
 
             $this->storeUploadedImages->handle($product, $images);
@@ -34,8 +40,8 @@ class CreateProduct
 
                 $variant = $product->variants()->create([
                     'name' => $variantData['name'],
-                    'price' => $variantData['price'] ?? null,
-                    'stock' => $variantData['stock'] ?? 0,
+                    'price' => $variantData['price'],
+                    'stock' => $variantData['stock'],
                 ]);
 
                 $this->storeUploadedImages->handle($product, $variantImages, $variant);
