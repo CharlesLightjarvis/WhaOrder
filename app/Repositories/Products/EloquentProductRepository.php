@@ -3,7 +3,9 @@
 namespace App\Repositories\Products;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class EloquentProductRepository implements ProductRepository
@@ -14,9 +16,9 @@ class EloquentProductRepository implements ProductRepository
         return Product::query()
             ->with([
                 'category:id,name',
-                'images' => fn ($query) => $query->whereNull('variant_id')->ordered()->limit(1),
-                'variants' => fn ($query) => $query->select(['id', 'product_id', 'name', 'price', 'stock']),
-                'variants.images' => fn ($query) => $query->ordered()->limit(1),
+                'images' => fn (Relation $relation): Builder => $relation->getQuery()->whereNull('variant_id')->orderBy('position')->limit(1),
+                'variants' => fn (Relation $relation): Builder => $relation->getQuery()->select(['id', 'product_id', 'name', 'price', 'stock']),
+                'variants.images' => fn (Relation $relation): Builder => $relation->getQuery()->orderBy('position')->limit(1),
             ])
             ->withCount('variants')
             ->latest()
@@ -29,9 +31,9 @@ class EloquentProductRepository implements ProductRepository
         return Product::query()
             ->with([
                 'category:id,name',
-                'images' => fn ($query) => $query->whereNull('variant_id')->ordered()->limit(1),
-                'variants' => fn ($query) => $query->select(['id', 'product_id', 'name', 'price', 'stock']),
-                'variants.images' => fn ($query) => $query->ordered()->limit(1),
+                'images' => fn (Relation $relation): Builder => $relation->getQuery()->whereNull('variant_id')->orderBy('position')->limit(1),
+                'variants' => fn (Relation $relation): Builder => $relation->getQuery()->select(['id', 'product_id', 'name', 'price', 'stock']),
+                'variants.images' => fn (Relation $relation): Builder => $relation->getQuery()->orderBy('position')->limit(1),
             ])
             ->withCount('variants')
             ->latest()
@@ -43,8 +45,8 @@ class EloquentProductRepository implements ProductRepository
         return Product::query()
             ->with([
                 'category:id,name',
-                'images' => fn ($query) => $query->ordered(),
-                'variants.images' => fn ($query) => $query->ordered(),
+                'images' => fn (Relation $relation): Builder => $relation->getQuery()->orderBy('position'),
+                'variants.images' => fn (Relation $relation): Builder => $relation->getQuery()->orderBy('position'),
             ])
             ->findOrFail($id);
     }

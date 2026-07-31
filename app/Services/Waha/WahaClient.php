@@ -51,11 +51,25 @@ class WahaClient
     }
 
     /**
-     * @return array{name: string, status: string, me: ?array{id: string, pushName: string}}
+     * @return array{name: string, status: string, me: ?array{id: string, pushName?: string}}
      */
     public function getStatus(string $name): array
     {
         return $this->http()->get("/api/sessions/{$name}")->throw()->json();
+    }
+
+    /** @return array{id: string, pushName?: string}|null */
+    public function getMe(string $name): ?array
+    {
+        $response = $this->http()->get("/api/sessions/{$name}/me");
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $me = $response->json();
+
+        return is_array($me) && isset($me['id']) ? $me : null;
     }
 
     /**

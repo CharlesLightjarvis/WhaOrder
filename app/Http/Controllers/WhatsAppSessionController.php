@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\WhatsAppSessions\ConnectWhatsAppSession;
 use App\Actions\WhatsAppSessions\DisconnectWhatsAppSession;
 use App\Actions\WhatsAppSessions\RefreshWhatsAppSessionStatus;
+use App\Enums\WhatsAppSessionStatus;
 use App\Http\Requests\WhatsAppSessions\StoreWhatsAppSessionRequest;
 use App\Http\Resources\WhatsAppSessionResource;
 use App\Models\WhatsAppSession;
@@ -30,7 +31,10 @@ class WhatsAppSessionController extends Controller
     public function index(): Response
     {
         foreach ($this->repository->all() as $session) {
-            if (! $session->status->isPending()) {
+            $hasIncompleteConnectedProfile = $session->status === WhatsAppSessionStatus::Working
+                && (blank($session->profile_name) || str_contains($session->phone_number ?? '', '@'));
+
+            if (! $session->status->isPending() && ! $hasIncompleteConnectedProfile) {
                 continue;
             }
 

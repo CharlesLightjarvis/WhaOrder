@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\WhatsAppSessions\RefreshWhatsAppSessionStatus;
 use App\Enums\WhatsAppSessionStatus;
 use App\Jobs\ProcessIncomingWhatsAppMessage;
 use App\Models\WhatsAppSession;
@@ -17,6 +18,7 @@ class WhatsAppWebhookController extends Controller
 {
     public function __construct(
         private readonly WahaClient $client,
+        private readonly RefreshWhatsAppSessionStatus $refreshWhatsAppSessionStatus,
     ) {}
 
     public function handle(Request $request): Response
@@ -76,6 +78,12 @@ class WhatsAppWebhookController extends Controller
             return;
         }
 
+        if ($status === WhatsAppSessionStatus::Working) {
+            $this->refreshWhatsAppSessionStatus->handle($whatsAppSession);
+
+            return;
+        }
+
         $data = ['status' => $status];
 
         if ($status === WhatsAppSessionStatus::ScanQrCode) {
@@ -85,13 +93,6 @@ class WhatsAppWebhookController extends Controller
             } catch (RequestException) {
                 // QR not ready yet — the next status event will retry.
             }
-        } elseif ($status === WhatsAppSessionStatus::Working) {
-            $remote = $this->client->getStatus($whatsAppSession->waha_session_name);
-
-            $data['qr_code'] = null;
-            $data['phone_number'] = $remote['me']['id'] ?? $whatsAppSession->phone_number;
-            $data['connected_at'] = $whatsAppSession->connected_at ?? now();
-            $data['last_active_at'] = now();
         }
 
         $whatsAppSession->update($data);

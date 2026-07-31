@@ -8,6 +8,7 @@ use App\Repositories\WhatsAppSessions\WhatsAppSessionRepository;
 use App\Services\Waha\WahaClient;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RefreshWhatsAppSessionStatus
 {
@@ -21,22 +22,30 @@ class RefreshWhatsAppSessionStatus
         $remote = $this->client->getStatus($whatsAppSession->waha_session_name);
 
         $status = WhatsAppSessionStatus::tryFrom($remote['status']) ?? WhatsAppSessionStatus::Failed;
+        $me = is_array($remote['me'] ?? null) ? $remote['me'] : [];
+
+        if ($status === WhatsAppSessionStatus::Working) {
+            $me = $this->client->getMe($whatsAppSession->waha_session_name) ?? $me;
+        }
 
         $data = [
             'status' => $status,
-            'phone_number' => $remote['me']['id'] ?? $whatsAppSession->phone_number,
+            'phone_number' => $this->phoneNumberFromJid(
+                $me['id'] ?? null,
+                $whatsAppSession->phone_number,
+            ),
         ];
 
         if ($status === WhatsAppSessionStatus::Working) {
             $data['qr_code'] = null;
             $data['connected_at'] = $whatsAppSession->connected_at ?? now();
             $data['last_active_at'] = now();
-            $data['profile_name'] = $remote['me']['pushName'] ?? $whatsAppSession->profile_name;
+            $data['profile_name'] = $me['pushName'] ?? $whatsAppSession->profile_name;
 
-            if (! empty($remote['me']['id'])) {
+            if (! empty($me['id'])) {
                 $data['profile_picture_url'] = $this->client->getProfilePicture(
                     $whatsAppSession->waha_session_name,
-                    $remote['me']['id'],
+                    $me['id'],
                 ) ?? $whatsAppSession->profile_picture_url;
             }
         } else {
@@ -55,5 +64,14 @@ class RefreshWhatsAppSessionStatus
         }
 
         return DB::transaction(fn () => $this->repository->update($whatsAppSession, $data));
+    }
+
+    private function phoneNumberFromJid(mixed $jid, ?string $fallback): ?string
+    {
+        if (! is_string($jid) || blank($jid)) {
+            return $fallback;
+        }
+
+        return Str::before($jid, '@');
     }
 }
