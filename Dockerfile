@@ -39,6 +39,7 @@ FROM composer-deps AS node-build
 RUN apk add --no-cache nodejs npm
 
 ENV NODE_OPTIONS="--max-old-space-size=1536"
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 RUN npm ci --prefer-offline
 
@@ -57,6 +58,11 @@ RUN apk add --no-cache \
         nginx \
         supervisor \
         curl \
+        chromium \
+        nss \
+        harfbuzz \
+        ca-certificates \
+        ttf-freefont \
         libstdc++ \
         libpng libjpeg-turbo freetype \
         icu-libs libzip oniguruma \
@@ -78,6 +84,9 @@ RUN apk add --no-cache --virtual .build-deps \
 # Node.js needed at runtime by `php artisan inertia:start-ssr`
 RUN apk add --no-cache nodejs npm
 
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV LARAVEL_PDF_NO_SANDBOX=true
+
 # PHP configuration
 COPY docker/php/php.ini        "$PHP_INI_DIR/conf.d/99-app.ini"
 COPY docker/php/opcache.ini    "$PHP_INI_DIR/conf.d/10-opcache.ini"
@@ -96,6 +105,7 @@ WORKDIR /var/www/html
 # Application source (copied in order of change frequency)
 COPY --chown=www-data:www-data . .
 COPY --from=composer-deps --chown=www-data:www-data /app/vendor        ./vendor
+COPY --from=node-build    --chown=www-data:www-data /app/node_modules  ./node_modules
 COPY --from=node-build    --chown=www-data:www-data /app/public/build  ./public/build
 COPY --from=node-build    --chown=www-data:www-data /app/bootstrap/ssr ./bootstrap/ssr
 
