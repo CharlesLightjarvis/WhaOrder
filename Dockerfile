@@ -86,6 +86,9 @@ RUN apk add --no-cache nodejs npm
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV LARAVEL_PDF_NO_SANDBOX=true
+ENV HOME=/tmp
+ENV XDG_CONFIG_HOME=/tmp/chromium/config
+ENV XDG_CACHE_HOME=/tmp/chromium/cache
 
 # PHP configuration
 COPY docker/php/php.ini        "$PHP_INI_DIR/conf.d/99-app.ini"
