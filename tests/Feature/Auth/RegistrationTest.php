@@ -18,7 +18,7 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register, along with their own merchant', function () {
-    Http::fake(['ipapi.co/*' => Http::response(['currency' => 'XOF', 'timezone' => 'Africa/Abidjan'])]);
+    Http::fake(['freeipapi.com/*' => Http::response(['currencies' => ['XOF'], 'timeZones' => ['Africa/Abidjan']])]);
 
     $response = $this->call('POST', route('register.store'), [
         'name' => 'Test User',

@@ -37,19 +37,20 @@ class DetectMerchantDefaults
             return $this->defaults();
         }
 
-        // The free geolocation API rate-limits rapid successive requests
-        // from the same IP (e.g. clicking "detect" repeatedly, or the
-        // server's own shared IP in local dev). Remember a successful
-        // lookup for a while so repeated calls stay consistent instead of
-        // silently falling back to defaults when rate-limited. A failed
-        // lookup is never cached, so the next attempt can retry cleanly.
+        // Free geolocation APIs can rate-limit or hiccup individually
+        // (e.g. clicking "detect" repeatedly, or a shared IP in local dev).
+        // Remember a successful lookup for a while so repeated calls stay
+        // consistent. A failed lookup is never cached, so the next attempt
+        // can retry cleanly.
         $cacheKey = "merchant-geolocation-defaults:{$resolvedIp}";
 
         if ($cached = Cache::get($cacheKey)) {
             return $cached;
         }
 
-        $result = $this->lookup($resolvedIp);
+        $result = $this->lookupFreeIpApi($resolvedIp)
+            ?? $this->lookupIpapiCo($resolvedIp)
+            ?? $this->lookupIpApiCom($resolvedIp);
 
         if ($result === null) {
             return $this->defaults();
@@ -61,11 +62,41 @@ class DetectMerchantDefaults
     }
 
     /**
+     * Primary provider: gives currency, timezone and country in one call,
+     * with no rate limiting observed even under rapid repeated calls.
+     *
      * @return array{currency: string, timezone: string}|null
      */
-    private function lookup(string $ip): ?array
+    private function lookupFreeIpApi(string $ip): ?array
     {
-        try {
+        return $this->tryLookup(function () use ($ip) {
+            $response = Http::withUserAgent('WhaOrder/1.0')
+                ->timeout(3)
+                ->get("https://freeipapi.com/api/json/{$ip}");
+
+            if ($response->failed()) {
+                return null;
+            }
+
+            $currency = mb_strtoupper((string) ($response->json('currencies.0') ?? ''));
+            $timezone = $response->json('timeZones.0');
+
+            return [
+                'currency' => Currencies::isValid($currency) ? $currency : self::DEFAULT_CURRENCY,
+                'timezone' => $timezone ?: self::DEFAULT_TIMEZONE,
+            ];
+        });
+    }
+
+    /**
+     * Secondary provider, tried if the primary one is down or changes its
+     * terms — has a stricter daily quota, but is otherwise equivalent.
+     *
+     * @return array{currency: string, timezone: string}|null
+     */
+    private function lookupIpapiCo(string $ip): ?array
+    {
+        return $this->tryLookup(function () use ($ip) {
             $response = Http::timeout(3)->get("https://ipapi.co/{$ip}/json/");
 
             if ($response->failed() || $response->json('error')) {
@@ -78,9 +109,43 @@ class DetectMerchantDefaults
                 'currency' => Currencies::isValid($currency) ? $currency : self::DEFAULT_CURRENCY,
                 'timezone' => $response->json('timezone') ?: self::DEFAULT_TIMEZONE,
             ];
+        });
+    }
+
+    /**
+     * Last-resort provider — doesn't return a currency directly, so it's
+     * derived from the country code via our own mapping.
+     *
+     * @return array{currency: string, timezone: string}|null
+     */
+    private function lookupIpApiCom(string $ip): ?array
+    {
+        return $this->tryLookup(function () use ($ip) {
+            $response = Http::timeout(3)->get("http://ip-api.com/json/{$ip}");
+
+            if ($response->failed() || $response->json('status') !== 'success') {
+                return null;
+            }
+
+            $currency = Currencies::forCountry((string) $response->json('countryCode'));
+
+            return [
+                'currency' => $currency ?? self::DEFAULT_CURRENCY,
+                'timezone' => $response->json('timezone') ?: self::DEFAULT_TIMEZONE,
+            ];
+        });
+    }
+
+    /**
+     * @param  callable(): (array{currency: string, timezone: string}|null)  $callback
+     * @return array{currency: string, timezone: string}|null
+     */
+    private function tryLookup(callable $callback): ?array
+    {
+        try {
+            return $callback();
         } catch (Throwable $exception) {
-            Log::warning('Failed to detect merchant defaults from IP geolocation.', [
-                'ip' => $ip,
+            Log::warning('A geolocation provider failed while detecting merchant defaults.', [
                 'message' => $exception->getMessage(),
             ]);
 

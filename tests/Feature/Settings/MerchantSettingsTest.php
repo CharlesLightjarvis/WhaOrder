@@ -58,7 +58,7 @@ it('rejects an unsupported currency', function () {
 });
 
 it('returns detected currency and timezone as json', function () {
-    Http::fake(['ipapi.co/*' => Http::response(['currency' => 'NGN', 'timezone' => 'Africa/Lagos'])]);
+    Http::fake(['freeipapi.com/*' => Http::response(['currencies' => ['NGN'], 'timeZones' => ['Africa/Lagos']])]);
 
     $response = $this->actingAs($this->user)->call(
         'GET',
