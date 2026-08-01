@@ -4,7 +4,8 @@
       "Bash(curl *)",
       "WebSearch",
       "PowerShell(composer audit *)",
-      "PowerShell(npm audit *)"
+      "PowerShell(npm audit *)",
+      "WebFetch(domain:laracasts.com)"
     ]
   },
   "enableAllProjectMcpServers": true,

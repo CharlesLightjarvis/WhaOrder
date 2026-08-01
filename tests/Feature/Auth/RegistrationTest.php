@@ -68,3 +68,22 @@ test('public registration is rate limited', function () {
 
     expect($response->getStatusCode())->toBe(429);
 });
+
+test('rate limiting redirects back with a flash toast for Inertia requests', function () {
+    foreach (range(1, 5) as $attempt) {
+        $this->call(
+            'POST',
+            route('register.store'),
+            server: ['REMOTE_ADDR' => '198.51.100.61'],
+        )->assertRedirect();
+    }
+
+    $response = $this->call(
+        'POST',
+        route('register.store'),
+        server: ['REMOTE_ADDR' => '198.51.100.61', 'HTTP_X_INERTIA' => 'true'],
+    );
+
+    $response->assertRedirect()
+        ->assertInertiaFlash('toast', ['type' => 'error', 'message' => 'Trop de tentatives. Merci de patienter un instant avant de réessayer.']);
+});

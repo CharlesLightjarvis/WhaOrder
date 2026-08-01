@@ -65,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->configureStorage();
         $this->configureRateLimiting();
+        $this->configureErrorHandling();
     }
 
     /**
